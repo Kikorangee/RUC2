@@ -1,138 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>RUC Details</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div id="loading">
-        <div class="spinner-container">
-            <div class="spinner"></div>
-            <p>Loading vehicle RUC data...</p>
-        </div>
-    </div>
+# Strip out the automatic fetch() attempt and keep only the Geotab-safe manual upload version
 
-    <div id="error-message" class="alert alert-danger" style="display:none;"></div>
-
-    <div id="rucAddin" class="panel panel-default" style="display:none;">
-        <div class="panel-heading">
-            <h3 class="panel-title">Vehicle RUC Details</h3>
-        </div>
-        <div class="panel-body">
-            <div class="form-group">
-                <label for="csvFile">Upload RUC CSV File:</label>
-                <input type="file" id="csvFile" class="form-control" accept=".csv" />
-                <button id="loadCsv" class="btn btn-primary" style="margin-top: 10px;">Load RUC Data</button>
-            </div>
-            <table class="table table-striped table-bordered" id="rucTable" style="display:none;">
-                <thead>
-                    <tr>
-                        <th>Vehicle Description</th>
-                        <th>Fleet #</th>
-                        <th>REG Plate</th>
-                        <th>RUC Paid to</th>
-                    </tr>
-                </thead>
-                <tbody id="ruc-table-body"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script>
-        geotab.addin.ruc = function (api, state) {
-            'use strict';
-
-            var rucTableBody, loadingDiv, rucAddinDiv, errorDiv, rucTable;
-            var rucData = [];
-
-            function showContent() {
-                loadingDiv.style.display = "none";
-                rucAddinDiv.style.display = "block";
-            }
-
-            function showError(message) {
-                loadingDiv.style.display = "none";
-                errorDiv.textContent = message;
-                errorDiv.style.display = "block";
-            }
-
-            function createRow(data) {
-                var row = document.createElement("tr");
-                row.innerHTML = "<td>" + (data["Vehicle Description"] || "N/A") + "</td>" +
-                                "<td>" + (data["Fleet #"] || "-") + "</td>" +
-                                "<td>" + (data["REG Plate"] || "-") + "</td>" +
-                                "<td>" + (data[" RUC Paid to "] || "-") + "</td>";
-                rucTableBody.appendChild(row);
-            }
-
-            function parseCSV(csvText) {
-                var lines = csvText.split('\n');
-                var result = [];
-                var headers = lines[0].split(',').map(function(h) { return h.trim(); });
-
-                for (var i = 1; i < lines.length; i++) {
-                    if (lines[i].trim() === '') continue;
-                    var values = lines[i].split(',').map(function(v) { return v.trim(); });
-                    var row = {};
-                    for (var j = 0; j < headers.length; j++) {
-                        row[headers[j]] = values[j];
-                    }
-                    result.push(row);
-                }
-                return result;
-            }
-
-            function loadCsvFile() {
-                var fileInput = document.getElementById('csvFile');
-                var file = fileInput.files[0];
-                if (!file) {
-                    alert('Please select a CSV file first.');
-                    return;
-                }
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        var csvText = e.target.result;
-                        rucData = parseCSV(csvText);
-                        console.log('CSV data loaded:', rucData);
-                        processRucData();
-                    } catch (error) {
-                        console.error('Error parsing CSV:', error);
-                        showError('Error parsing CSV file: ' + error.message);
-                    }
-                };
-                reader.readAsText(file);
-            }
-
-            function processRucData() {
-                console.log('Processing RUC data...');
-                rucTableBody.innerHTML = '';
-
-                if (rucData.length === 0) {
-                    showError("No RUC data found in CSV file.");
-                    return;
-                }
-
-                rucData.forEach(function(data) {
-                    createRow(data);
-                });
-                rucTable.style.display = "table";
-            }
-
-            return {
-                initialize: function (api, state, callback) {
-                    loadingDiv = document.getElementById("loading");
-                    rucAddinDiv = document.getElementById("rucAddin");
-                    errorDiv = document.getElementById("error-message");
-                    rucTable = document.getElementById("rucTable");
-                    rucTableBody = document.getElementById("ruc-table-body");
-
-                    document.getElementById('loadCsv').addEventListener('click', loadCsvFile);
-
-                    // Auto-load CSV from local path (if hosted in same directory)
+geotab_safe_html = html_content.replace(
+    '''// Auto-load CSV from local path (if hosted in same directory)
                     fetch("RUC Project.csv")
                         .then(response => response.text())
                         .then(csvText => {
@@ -148,22 +17,12 @@
                         .catch(err => {
                             console.error('Error fetching CSV:', err);
                             showError('Failed to fetch CSV file: ' + err.message);
-                        });
+                        });''',
+    ''  # Remove the whole fetch block for Geotab-safe use
+)
 
-                    showContent();
+# Save the cleaned version
+geotab_safe_path = Path("/mnt/data/ruc_addin_geotab_safe.html")
+geotab_safe_path.write_text(geotab_safe_html)
 
-                    if (callback) {
-                        callback();
-                    }
-                },
-                focus: function (api, state) {
-                    // Logic to handle when the add-in gains focus
-                },
-                blur: function () {
-                    // Logic to handle when the add-in loses focus
-                }
-            };
-        };
-    </script>
-</body>
-</html>
+geotab_safe_path.name
