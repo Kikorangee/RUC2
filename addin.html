@@ -1,28 +1,43 @@
-# Strip out the automatic fetch() attempt and keep only the Geotab-safe manual upload version
+# Create a new version of the HTML with Geotab-safe initialization and no API call
 
-geotab_safe_html = html_content.replace(
-    '''// Auto-load CSV from local path (if hosted in same directory)
-                    fetch("RUC Project.csv")
-                        .then(response => response.text())
-                        .then(csvText => {
-                            try {
-                                rucData = parseCSV(csvText);
-                                console.log('Auto-loaded CSV:', rucData);
-                                processRucData();
-                            } catch (error) {
-                                console.error('Auto-load CSV parse error:', error);
-                                showError('Error loading CSV file: ' + error.message);
-                            }
-                        })
-                        .catch(err => {
-                            console.error('Error fetching CSV:', err);
-                            showError('Failed to fetch CSV file: ' + err.message);
-                        });''',
-    ''  # Remove the whole fetch block for Geotab-safe use
+simplified_html = geotab_safe_html.replace(
+    '''fetchVehicles();
+
+                    if (callback) {
+                        callback();
+                    }''',
+    '''showContent();
+                    if (callback) {
+                        callback();
+                    }'''
+).replace(
+    '''
+            async function fetchVehicles() {
+                try {
+                    console.log("Fetching vehicles...");
+                    vehicles = await api.call("Get", {
+                        typeName: "Device"
+                    });
+                    console.log(vehicles.length + " vehicles loaded successfully.");
+                    showContent();
+                } catch (err) {
+                    console.error("Error fetching vehicles: ", err);
+                    showError("Could not load vehicle data from Geotab. " + err.message);
+                }
+            }''',
+    ''  # Completely remove the fetchVehicles() block
+).replace(
+    '''if (vehicles.length === 0) {
+                    showError("No vehicles loaded from Geotab yet. Please wait a moment and try again.");
+                    return;
+                }
+
+                if (rucData.length === 0) {''',
+    '''if (rucData.length === 0) {'''
 )
 
-# Save the cleaned version
-geotab_safe_path = Path("/mnt/data/ruc_addin_geotab_safe.html")
-geotab_safe_path.write_text(geotab_safe_html)
+# Save the simplified version that doesn't rely on Geotab API call
+simplified_path = Path("/mnt/data/ruc_addin_geotab_noworkingapi.html")
+simplified_path.write_text(simplified_html)
 
-geotab_safe_path.name
+simplified_path.name
