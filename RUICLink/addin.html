@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>RUC Details</title>
+    <link rel="stylesheet" href__="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href__="style.css">
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <p>Loading vehicle RUC data...</p>
+        </div>
+    </div>
+    
+    <div id="error-message" class="alert alert-danger" style="display:none;"></div>
+
+    <div id="rucAddin" class="panel panel-default" style="display:none;">
+        <div class="panel-heading">
+            <h3 class="panel-title">Vehicle RUC Details</h3>
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="csvFile">Upload RUC CSV File:</label>
+                <input type="file" id="csvFile" class="form-control" accept=".csv" />
+                <button id="loadCsv" class="btn btn-primary" style="margin-top: 10px;">Load RUC Data</button>
+            </div>
+            <table class="table table-striped table-bordered" id="rucTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Vehicle</th>
+                        <th>Last RUC Log Date</th>
+                        <th>Odometer (km)</th>
+                        <th>Distance (km)</th>
+                        <th>RUC Label Number</th>
+                    </tr>
+                </thead>
+                <tbody id="ruc-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        geotab.addin.ruc = function (api, state) {
+            'use strict';
+
+            var rucTableBody, loadingDiv, rucAddinDiv, errorDiv, rucTable;
+            var vehicles = [];
+            var rucData = [];
+
+            function showContent() {
+                loadingDiv.style.display = "none";
+                rucAddinDiv.style.display = "block";
+            }
+            
+            function showError(message) {
+                loadingDiv.style.display = "none";
+                errorDiv.textContent = message;
+                errorDiv.style.display = "block";
+            }
+
+            function createRow(data) {
+                var row = document.createElement("tr");
+                row.innerHTML = "<td>" + (data.vehicleName || "N/A") + "</td>" +
+                    "<td>" + (data.dateTime || "-") + "</td>" +
+                    "<td>" + (data.odometer || "-") + "</td>" +
+                    "<td>" + (data.distance || "-") + "</td>" +
+                    "<td>" + (data.rucLabel || "-") + "</td>";
+                rucTableBody.appendChild(row);
+            }
+
+            // CSV parsing function
+            function parseCSV(csvText) {
+                var lines = csvText.split('\n');
+                var result = [];
+                var headers = lines[0].split(',').map(function(h) { return h.trim(); });
+                
+                for (var i = 1; i < lines.length; i++) {
+                    if (lines[i].trim() === '') continue;
+                    
+                    var values = lines[i].split(',').map(function(v) { return v.trim(); });
+                    var row = {};
+                    
+                    for (var j = 0; j < headers.length; j++) {
+                        row[headers[j]] = values[j];
+                    }
+                    result.push(row);
+                }
+                return result;
+            }
+
+            // Load and process CSV file
+            function loadCsvFile() {
+                var fileInput = document.getElementById('csvFile');
+                var file = fileInput.files[0];
+                
+                if (!file) {
+                    alert('Please select a CSV file first.');
+                    return;
+                }
+
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        var csvText = e.target.result;
+                        rucData = parseCSV(csvText);
+                        console.log('CSV data loaded:', rucData);
+                        
+                        // Process and display the combined data
+                        processRucData();
+                        
+                    } catch (error) {
+                        console.error('Error parsing CSV:', error);
+                        showError('Error parsing CSV file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            // Process RUC data and match with vehicles
+            function processRucData() {
+                console.log('Processing RUC data...');
+                
+                // Clear existing table data
+                rucTableBody.innerHTML = '';
+                
+                if (rucData.length === 0) {
+                    createRow({ vehicleName: "No RUC data found in CSV file." });
+                    rucTable.style.display = "table";
+                    return;
+                }
+
+                // Match RUC data with vehicles
+                vehicles.forEach(function(vehicle) {
+                    // Try to find matching RUC data for this vehicle
+                    // You might need to adjust the matching logic based on your CSV structure
+                    var matchingRuc = rucData.find(function(ruc) {
+                        return ruc.VehicleName === vehicle.name || 
+                               ruc.Vehicle === vehicle.name ||
+                               ruc.Name === vehicle.name;
+                    });
+
+                    if (matchingRuc) {
+                        createRow({
+                            vehicleName: vehicle.name,
+                            dateTime: matchingRuc.Date || matchingRuc.DateTime || '-',
+                            odometer: matchingRuc.Odometer || matchingRuc.OdometerKm || '-',
+                            distance: matchingRuc.Distance || matchingRuc.DistanceKm || '-',
+                            rucLabel: matchingRuc.RUCLabel || matchingRuc.LabelNumber || '-'
+                        });
+                    } else {
+                        createRow({
+                            vehicleName: vehicle.name,
+                            dateTime: 'No RUC data',
+                            odometer: '-',
+                            distance: '-',
+                            rucLabel: '-'
+                        });
+                    }
+                });
+
+                rucTable.style.display = "table";
+            }
+
+            async function fetchVehicles() {
+                try {
+                    console.log("Fetching vehicles...");
+                    vehicles = await api.call("Get", {
+                        typeName: "Device",
+                        search: { groups: state.getGroups() }
+                    });
+                    console.log("Found " + vehicles.length + " vehicles.");
+
+                    if (vehicles.length === 0) {
+                        showError("No vehicles found in your groups.");
+                        return;
+                    }
+
+                    showContent();
+                    
+                } catch (error) {
+                    console.error('Error fetching vehicles:', error);
+                    showError('Error loading vehicles: ' + error.message);
+                }
+            }
+
+            return {
+                initialize: function (api, state, callback) {
+                    // Get DOM elements
+                    rucTableBody = document.getElementById("ruc-table-body");
+                    loadingDiv = document.getElementById("loading");
+                    rucAddinDiv = document.getElementById("rucAddin");
+                    errorDiv = document.getElementById("error-message");
+                    rucTable = document.getElementById("rucTable");
+
+                    // Set up CSV file upload handler
+                    document.getElementById('loadCsv').addEventListener('click', loadCsvFile);
+
+                    // Fetch vehicles on initialization
+                    fetchVehicles();
+
+                    callback();
+                },
+                
+                focus: function (api, state) {},
+                blur: function () {}
+            };
+        };
+    </script>
+</body>
+</html>
