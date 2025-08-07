@@ -1,0 +1,14 @@
+{
+  "name": "RUC",
+  "supportEmail": "kikorangi@gmail.com",
+  "version": "1.0.2",
+  "items": [
+    {
+      "path": "RUCLink/",
+      "menuName": {
+        "en": "RUC"
+      }
+    }
+  ],
+  "isSigned": false
+}
