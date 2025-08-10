@@ -652,6 +652,43 @@
       const cleaned = String(x).replace(/[,\s]/g, '');
       const num = Number(cleaned);
       return isFinite(num) ? num : null;
+
+// === Inline-edit helpers ===
+function updateExpiry(deviceId, newValue) {
+  const expiryVal = parseNumber(newValue);
+  rows = rows.map(row => {
+    if (row['device id'] === deviceId) {
+      row['expiry'] = expiryVal;
+      if (row['odometer'] !== null && expiryVal !== null) {
+        row['distance remaining'] = Math.round(expiryVal - row['odometer']);
+      } else {
+        row['distance remaining'] = null;
+      }
+    }
+    return row;
+  });
+  applyFilters();
+}
+
+function updateOdometer(deviceId, newValue) {
+  let odoVal = parseNumber(newValue);
+  // Reject negatives
+  if (odoVal !== null && odoVal < 0) odoVal = 0;
+  rows = rows.map(row => {
+    if (row['device id'] === deviceId) {
+      row['odometer'] = odoVal;
+      if (row['expiry'] !== null && odoVal !== null) {
+        row['distance remaining'] = Math.round(row['expiry'] - odoVal);
+      } else {
+        row['distance remaining'] = null;
+      }
+    }
+    return row;
+  });
+  applyFilters();
+}
+
+
     }
 
     // Data normalization
@@ -745,43 +782,88 @@
 
     // Render table
     function renderTable(data) {
-      const tbody = document.getElementById('tbody');
-      tbody.innerHTML = '';
-      
-      data.forEach(r => {
-        const row = document.createElement('tr');
-        const remaining = r['distance remaining'];
-        
-        let status, displayText;
-        if (remaining === null) {
-          status = 'warn';
-          displayText = 'n/a';
-        } else if (remaining < 0) {
-          status = 'danger';
-          displayText = `${Math.abs(remaining).toLocaleString()} km overdue`;
-        } else if (remaining < 1000) {
-          status = 'danger';
-          displayText = `${remaining.toLocaleString()} km`;
-        } else if (remaining < 2000) {
-          status = 'warn';
-          displayText = `${remaining.toLocaleString()} km`;
-        } else {
-          status = 'ok';
-          displayText = `${remaining.toLocaleString()} km`;
-        }
-        
-        row.innerHTML = `
-          <td>${r['device id'] || ''}</td>
-          <td>${r['Fleet #'] || ''}</td>
-          <td>${r['REG Plate'] || ''}</td>
-          <td>${r['expiry'] !== null ? r['expiry'].toLocaleString() : ''}</td>
-          <td>${r['odometer'] !== null ? r['odometer'].toLocaleString() : ''}</td>
-          <td><span class="tag ${status}">${displayText}</span></td>
-        `;
-        
-        tbody.appendChild(row);
-      });
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  data.forEach(r => {
+    const tr = document.createElement('tr');
+    const remaining = r['distance remaining'];
+
+    let status, displayText;
+    if (remaining === null) {
+      status = 'warn';
+      displayText = 'n/a';
+    } else if (remaining < 0) {
+      status = 'danger';
+      displayText = `${Math.abs(remaining).toLocaleString()} km overdue`;
+    } else if (remaining < 1000) {
+      status = 'danger';
+      displayText = `${remaining.toLocaleString()} km`;
+    } else if (remaining < 2000) {
+      status = 'warn';
+      displayText = `${remaining.toLocaleString()} km`;
+    } else {
+      status = 'ok';
+      displayText = `${remaining.toLocaleString()} km`;
     }
+
+    // Device ID
+    const tdDevice = document.createElement('td');
+    tdDevice.textContent = r['device id'] || '';
+
+    // Fleet #
+    const tdFleet = document.createElement('td');
+    tdFleet.textContent = r['Fleet #'] || '';
+
+    // REG Plate
+    const tdReg = document.createElement('td');
+    tdReg.textContent = r['REG Plate'] || '';
+
+    // Editable Expiry (km)
+    const tdExpiry = document.createElement('td');
+    const expiryInput = document.createElement('input');
+    expiryInput.type = 'number';
+    expiryInput.value = r['expiry'] !== null ? r['expiry'] : '';
+    expiryInput.style.width = '110px';
+    expiryInput.style.padding = '6px 8px';
+    expiryInput.style.border = '2px solid var(--border)';
+    expiryInput.style.borderRadius = '8px';
+    expiryInput.addEventListener('input', (e) => {
+      updateExpiry(r['device id'], e.target.value);
+    });
+    tdExpiry.appendChild(expiryInput);
+
+    // Editable Odometer (km)
+    const tdOdo = document.createElement('td');
+    const odoInput = document.createElement('input');
+    odoInput.type = 'number';
+    odoInput.value = r['odometer'] !== null ? r['odometer'] : '';
+    odoInput.style.width = '110px';
+    odoInput.style.padding = '6px 8px';
+    odoInput.style.border = '2px solid var(--border)';
+    odoInput.style.borderRadius = '8px';
+    odoInput.addEventListener('input', (e) => {
+      updateOdometer(r['device id'], e.target.value);
+    });
+    tdOdo.appendChild(odoInput);
+
+    // Distance remaining tag
+    const tdRemaining = document.createElement('td');
+    const span = document.createElement('span');
+    span.className = `tag ${status}`;
+    span.textContent = displayText;
+    tdRemaining.appendChild(span);
+
+    tr.appendChild(tdDevice);
+    tr.appendChild(tdFleet);
+    tr.appendChild(tdReg);
+    tr.appendChild(tdExpiry);
+    tr.appendChild(tdOdo);
+    tr.appendChild(tdRemaining);
+
+    tbody.appendChild(tr);
+  });
+}
 
     // Render chart
     function renderChart(data) {
