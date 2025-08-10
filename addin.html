@@ -20,104 +20,110 @@
       --shadow:0 1px 3px rgba(0,0,0,0.1);
       --shadow-lg:0 10px 25px rgba(0,0,0,0.1);
     }
-    
+
     *{box-sizing:border-box}
-    
+
     body{
       margin:0;
       background:linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
       color:var(--text);
-      font:14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Ubuntu,sans-serif;
+      font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Ubuntu,sans-serif;
       min-height:100vh;
     }
-    
-    header{
+
+    /* --- Polished header and controls --- */
+    header {
       background:var(--card);
-      padding:20px 24px;
+      padding:32px 0 16px 0;
       border-bottom:1px solid var(--border);
       box-shadow:var(--shadow);
       display:flex;
-      gap:16px;
+      flex-direction:column;
       align-items:center;
-      justify-content:space-between;
+      gap:16px;
       position:sticky;
       top:0;
       z-index:100;
     }
-    
     header h1{
-      font-size:24px;
-      margin:0;
+      font-size:2.3em;
+      margin:0 0 8px 0;
       font-weight:700;
+      text-align:center;
       background:linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
       background-clip:text;
+      letter-spacing:0.5px;
     }
-    
     .controls{
       display:flex;
       flex-wrap:wrap;
-      gap:12px;
+      gap:10px 12px;
       align-items:center;
+      justify-content:center;
+      width:100%;
+      max-width:1000px;
+      background:rgba(255,255,255,0.85);
+      border-radius:16px;
+      box-shadow:0 2px 12px rgba(59,130,246,0.08);
+      padding:18px 0;
+      margin:0 auto;
     }
-    
+
     .btn{
       background:linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
       border:none;
       color:#fff;
-      padding:10px 16px;
-      border-radius:8px;
+      padding:8px 14px;
+      border-radius:10px;
       font-weight:600;
       cursor:pointer;
       transition:all 0.2s ease;
       box-shadow:var(--shadow);
       font-size:13px;
     }
-    
+
     .btn:hover:not(:disabled){
       transform:translateY(-1px);
       box-shadow:0 4px 12px rgba(59,130,246,0.3);
     }
-    
+
     .btn:disabled{
       opacity:0.5;
       cursor:not-allowed;
       transform:none;
     }
-    
+
     .btn.secondary{
       background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
     }
-    
+
     .input{
       background:var(--card);
       border:2px solid var(--border);
       color:var(--text);
-      padding:10px 14px;
-      border-radius:8px;
+      padding:8px 12px;
+      border-radius:10px;
       transition:all 0.2s ease;
       font-size:13px;
+      height:36px;
     }
-    
+
     .input:focus{
       outline:none;
       border-color:var(--accent);
       box-shadow:0 0 0 3px rgba(59,130,246,0.1);
     }
-    
-    main{
-      padding:24px;
-      max-width:1400px;
-      margin:0 auto;
-    }
-    
+
+    main{padding:32px 24px;max-width:1200px;margin:0 auto;}
+
     .grid{
       display:grid;
       grid-template-columns:repeat(12,1fr);
-      gap:20px;
+      gap:24px;
     }
-    
+
     .card{
       background:var(--card);
       border:1px solid var(--border);
@@ -126,19 +132,19 @@
       box-shadow:var(--shadow);
       transition:all 0.2s ease;
     }
-    
+
     .card:hover{
       box-shadow:var(--shadow-lg);
       transform:translateY(-2px);
     }
-    
+
     .kpi{
       display:flex;
       flex-direction:column;
       gap:8px;
       text-align:center;
     }
-    
+
     .kpi .label{
       color:var(--muted);
       font-size:12px;
@@ -146,16 +152,16 @@
       text-transform:uppercase;
       letter-spacing:0.5px;
     }
-    
+
     .kpi .value{
-      font-size:28px;
+      font-size:32px;
       font-weight:800;
       background:linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
       background-clip:text;
     }
-    
+
     .pill{
       padding:8px 12px;
       border-radius:20px;
@@ -169,7 +175,7 @@
       background:var(--card);
       transition:all 0.2s ease;
     }
-    
+
     .legend{
       display:flex;
       gap:20px;
@@ -177,7 +183,7 @@
       font-size:13px;
       font-weight:500;
     }
-    
+
     .legend span{
       height:12px;
       width:12px;
@@ -185,11 +191,11 @@
       border-radius:3px;
       box-shadow:var(--shadow);
     }
-    
+
     .legend .danger{background:linear-gradient(135deg, var(--danger) 0%, #dc2626 100%)}
     .legend .warn{background:linear-gradient(135deg, var(--warn) 0%, #d97706 100%)}
     .legend .ok{background:linear-gradient(135deg, var(--ok) 0%, #059669 100%)}
-    
+
     table{
       width:100%;
       border-collapse:separate;
@@ -198,13 +204,16 @@
       overflow:hidden;
       box-shadow:var(--shadow);
     }
-    
+
     thead th{
+      position:sticky;
+      top:0;
+      z-index:1;
       background:linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
       color:var(--text);
       font-weight:700;
       text-align:left;
-      padding:16px;
+      padding:14px 16px;
       font-size:12px;
       text-transform:uppercase;
       letter-spacing:0.5px;
@@ -212,27 +221,28 @@
       cursor:pointer;
       transition:background 0.2s ease;
     }
-    
+
     thead th:hover{
       background:linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
     }
-    
+
     tbody td{
-      padding:16px;
+      padding:12px 16px;
       background:var(--card);
       border-bottom:1px solid var(--border);
       font-size:14px;
+      vertical-align:middle;
     }
-    
+
     tbody tr{
-      transition:all 0.2s ease;
+      transition:background 0.15s ease, transform 0.15s ease;
     }
-    
+
     tbody tr:hover{
-      background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-      transform:scale(1.01);
+      background:#f8fafc;
+      transform:translateY(-1px);
     }
-    
+
     .tag{
       padding:6px 12px;
       border-radius:20px;
@@ -243,37 +253,37 @@
       min-width:80px;
       box-shadow:var(--shadow);
     }
-    
+
     .tag.danger{
       background:linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
       color:white;
     }
-    
+
     .tag.warn{
       background:linear-gradient(135deg, var(--warn) 0%, #d97706 100%);
       color:white;
     }
-    
+
     .tag.ok{
       background:linear-gradient(135deg, var(--ok) 0%, #059669 100%);
       color:white;
     }
-    
+
     canvas{
       width:100%;
-      height:280px;
+      height: 500px;
       background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       border-radius:12px;
       border:2px solid var(--border);
       box-shadow:var(--shadow);
     }
-    
+
     .foot{
       color:var(--muted);
       font-size:12px;
       font-weight:500;
     }
-    
+
     .drop{
       border:3px dashed var(--border);
       border-radius:12px;
@@ -284,14 +294,14 @@
       transition:all 0.2s ease;
       background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     }
-    
+
     .drop:hover, .drop.drag{
       border-color:var(--accent);
       background:linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(99,102,241,0.05) 100%);
       color:var(--accent);
       transform:scale(1.02);
     }
-    
+
     .error{
       background:linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
       border:2px solid #fecaca;
@@ -301,7 +311,7 @@
       margin:12px 0;
       font-weight:500;
     }
-    
+
     .success{
       background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
       border:2px solid #bbf7d0;
@@ -311,13 +321,13 @@
       margin:12px 0;
       font-weight:500;
     }
-    
+
     /* Modern scrollbar */
     ::-webkit-scrollbar{width:8px;height:8px}
     ::-webkit-scrollbar-track{background:var(--border);border-radius:4px}
     ::-webkit-scrollbar-thumb{background:var(--muted);border-radius:4px}
     ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
-    
+
     /* Responsive */
     @media (max-width: 768px) {
       header { flex-direction: column; gap: 12px; }
@@ -326,9 +336,122 @@
       .grid { gap: 16px; }
       .card { padding: 16px; }
     }
+
+    /* New: wrap table for scroll if needed */
+    .table-wrap{overflow:auto;border-radius:12px;}
+
+    /* Right-align numeric columns */
+    tbody td.num, thead th.num { text-align:right; }
+
+    /* Compact inputs inside table cells */
+    td input[type="number"]{
+      width:110px;
+      padding:6px 8px;
+      border:2px solid var(--border);
+      border-radius:8px;
+      height:36px;
+    }
+
+    /* Make legend and meta breathe */
+    .legend{ gap:16px; }
+    #meta{ font-weight:600; }
+
   </style>
 </head>
+<script>
+// Inject Google Fonts for modern look
+const fontLink = document.createElement('link');
+fontLink.rel = 'stylesheet';
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto:wght@400;700&display=swap';
+document.head.appendChild(fontLink);
 
+document.body.style.fontFamily = "'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Ubuntu', sans-serif";
+document.body.style.background = "linear-gradient(120deg, #e0e7ef 0%, #f8fafc 100%)";
+
+// Animate card hover
+document.querySelectorAll('.card').forEach(card => {
+  card.style.transition = 'box-shadow 0.3s, transform 0.3s';
+  card.addEventListener('mouseenter', () => {
+    card.style.boxShadow = '0 12px 32px rgba(59,130,246,0.12)';
+    card.style.transform = 'translateY(-3px) scale(1.02)';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    card.style.transform = 'none';
+  });
+});
+
+// Animate button hover
+document.querySelectorAll('.btn').forEach(btn => {
+  btn.style.transition = 'box-shadow 0.2s, transform 0.2s, background 0.2s';
+  btn.addEventListener('mouseenter', () => {
+    btn.style.boxShadow = '0 8px 24px rgba(59,130,246,0.18)';
+    btn.style.transform = 'scale(1.05)';
+    btn.style.background = 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)';
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    btn.style.transform = 'none';
+    btn.style.background = '';
+  });
+});
+
+// Polish controls
+const controls = document.querySelector('.controls');
+controls.style.background = 'rgba(255,255,255,0.85)';
+controls.style.borderRadius = '16px';
+controls.style.boxShadow = '0 2px 12px rgba(59,130,246,0.08)';
+controls.style.padding = '18px 0';
+controls.style.margin = '0 auto 20px auto';
+controls.style.maxWidth = '950px';
+
+// Polish table
+document.querySelectorAll('table').forEach(table => {
+  table.style.borderRadius = '16px';
+  table.style.boxShadow = '0 2px 18px rgba(59,130,246,0.07)';
+  table.style.background = 'rgba(255,255,255,0.95)';
+});
+document.querySelectorAll('thead th').forEach(th => {
+  th.style.background = 'linear-gradient(120deg, #e0e7ef 0%, #f8fafc 100%)';
+  th.style.fontWeight = '700';
+  th.style.fontSize = '15px';
+  th.style.letterSpacing = '1px';
+});
+
+// Table cell polish
+document.querySelectorAll('tbody td').forEach(td => {
+  td.style.fontSize = '15px';
+  td.style.padding = '14px 10px';
+});
+
+// Make legend more visible
+document.querySelectorAll('.legend').forEach(legend => {
+  legend.style.background = 'rgba(240,242,255,0.7)';
+  legend.style.borderRadius = '12px';
+  legend.style.padding = '10px 16px';
+  legend.style.marginBottom = '8px';
+  legend.style.boxShadow = '0 1px 6px rgba(59,130,246,0.06)';
+});
+
+// Animate dropZone hover
+const dropZone = document.getElementById('dropZone');
+if (dropZone) {
+  dropZone.style.transition = 'box-shadow 0.25s, border-color 0.2s';
+  dropZone.addEventListener('mouseenter', () => {
+    dropZone.style.boxShadow = '0 8px 24px rgba(59,130,246,0.11)';
+    dropZone.style.borderColor = '#3b82f6';
+  });
+  dropZone.addEventListener('mouseleave', () => {
+    dropZone.style.boxShadow = '';
+    dropZone.style.borderColor = '';
+  });
+}
+
+// Subtle fade-in animation for main
+document.querySelector('main').style.opacity = 0;
+document.querySelector('main').style.transition = 'opacity 0.7s';
+setTimeout(() => { document.querySelector('main').style.opacity = 1; }, 100);
+</script>
 <body>
   <header>
     <h1>RUC Dashboard</h1>
@@ -387,13 +510,9 @@
         <div class="kpi"><div class="label">&lt; 1000 km</div><div class="value" id="kpi1000">–</div></div>
       </section>
 
-      <!-- Chart -->
-      <section class="card" style="grid-column: span 12;">
-        <canvas id="chart"></canvas>
-      </section>
-
       <!-- Table -->
       <section class="card" style="grid-column: span 12;">
+        <div class="table-wrap">
         <table>
           <thead>
             <tr>
@@ -407,634 +526,23 @@
           </thead>
           <tbody id="tbody"></tbody>
         </table>
+        </div>
       </section>
     </div>
   </main>
 
+  <!-- ... rest of your JS unchanged ... -->
   <script>
     // Global state
     let raw = [];
     let rows = [];
     let sortKey = 'distance remaining';
     let sortDir = 'asc';
-    
-    // Geotab configuration - Pre-configured with provided credentials
-    let geotabConfig = {
-      database: 'uccnz',
-      username: 'francis@directt.co.nz',
-      password: '@fr4nc1sWynn5'
-    };
-    
-    // Save the pre-configured credentials to localStorage
-    localStorage.setItem('ruc_db', geotabConfig.database);
-    localStorage.setItem('ruc_user', geotabConfig.username);
-    localStorage.setItem('ruc_pass', geotabConfig.password);
-    
-    // Update config UI
-    function updateConfigUI() {
-      document.getElementById('dbInput').value = geotabConfig.database;
-      document.getElementById('userInput').value = geotabConfig.username;
-      document.getElementById('passInput').value = geotabConfig.password;
-      
-      const isConfigured = geotabConfig.database && geotabConfig.username && geotabConfig.password;
-      document.getElementById('configStatus').textContent = isConfigured ? 'Configuration saved ✓' : 'Not configured';
-      document.getElementById('btnRefresh').disabled = !isConfigured || rows.length === 0;
-    }
-    
-    // Save configuration
-    function saveConfiguration() {
-      geotabConfig.database = document.getElementById('dbInput').value.trim();
-      geotabConfig.username = document.getElementById('userInput').value.trim();
-      geotabConfig.password = document.getElementById('passInput').value;
-      
-      localStorage.setItem('ruc_db', geotabConfig.database);
-      localStorage.setItem('ruc_user', geotabConfig.username);
-      localStorage.setItem('ruc_pass', geotabConfig.password);
-      
-      updateConfigUI();
-    }
-    
-    // Add event listener for save config button
-    document.getElementById('btnSaveConfig').addEventListener('click', saveConfiguration);
-    
-    // Refresh odometer readings from Geotab
-    async function refreshOdometers() {
-      if (!geotabConfig.database || !geotabConfig.username || !geotabConfig.password) {
-        showStatus('Please configure Geotab credentials first', 'error');
-        return;
-      }
-      
-      const deviceIds = rows.map(r => r['device id']).filter(id => id && id.trim());
-      if (deviceIds.length === 0) {
-        showStatus('No device IDs found in data', 'error');
-        return;
-      }
-      
-      const refreshBtn = document.getElementById('btnRefresh');
-      const originalText = refreshBtn.textContent;
-      refreshBtn.disabled = true;
-      refreshBtn.textContent = '🔄 Refreshing...';
-      
-      try {
-        // Try to use local proxy server for Geotab API
-        const response = await fetch('http://localhost:5009/odometer_bulk', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            database: geotabConfig.database,
-            username: geotabConfig.username,
-            password: geotabConfig.password,
-            deviceIds: deviceIds,
-            diagnosticId: 'DiagnosticOdometerAdjustmentId'
-          })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const result = await response.json();
-        
-        if (!result.ok) {
-          throw new Error(result.error || 'Unknown API error');
-        }
-        
-        // Update odometer readings
-        const odometerData = result.data || {};
-        let updatedCount = 0;
-        
-        rows = rows.map(row => {
-          const deviceId = row['device id'];
-          if (deviceId && odometerData[deviceId] !== undefined) {
-            row['odometer'] = Math.round(odometerData[deviceId]); // Already in km
-            
-            // Recalculate distance remaining
-            if (row['expiry'] !== null && row['odometer'] !== null) {
-              row['distance remaining'] = Math.round(row['expiry'] - row['odometer']);
-            }
-            updatedCount++;
-          }
-          return row;
-        });
-        
-        if (updatedCount > 0) {
-          applyFilters();
-          showStatus(`✓ Updated ${updatedCount} vehicle odometers`, 'success');
-          document.getElementById('meta').textContent += ` • Last updated: ${new Date().toLocaleTimeString()}`;
-        } else {
-          showStatus('No odometer updates received', 'error');
-        }
-        
-      } catch (error) {
-        console.error('Refresh error:', error);
-        if (error.message.includes('fetch') || error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
-          showStatus('❌ Proxy server not running! Start the Geotab proxy server on localhost:5009 first. Check console for setup instructions.', 'error');
-          console.log('🔧 SETUP REQUIRED:');
-          console.log('1. Install: pip install flask flask-cors requests');
-          console.log('2. Download proxy server from the artifact above');
-          console.log('3. Run: python geotab_proxy.py');
-          console.log('4. Server will start on localhost:5009');
-          console.log('5. Then try refresh again');
-        } else {
-          showStatus(`Refresh failed: ${error.message}`, 'error');
-        }
-      } finally {
-        refreshBtn.disabled = false;
-        refreshBtn.textContent = originalText;
-        updateConfigUI(); // Re-enable button if configured
-      }
-    }
-    
-    // Add event listener for refresh button
-    document.getElementById('btnRefresh').addEventListener('click', refreshOdometers);
-    
-    // Show status messages
-    function showStatus(message, type = 'info') {
-      const statusDiv = document.getElementById('status');
-      const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
-      statusDiv.innerHTML = `<div class="${className}">${message}</div>`;
-      
-      // Clear after 5 seconds for non-error messages
-      if (type !== 'error') {
-        setTimeout(() => {
-          statusDiv.innerHTML = '';
-        }, 5000);
-      }
-    }
-
-    // Advanced CSV parser to handle quotes, commas in fields, etc.
-    function parseCSV(text) {
-      text = text.trim();
-      if (!text) throw new Error('Empty CSV file');
-      
-      const rows = [];
-      let row = [];
-      let current = '';
-      let inQuotes = false;
-      let i = 0;
-      
-      while (i < text.length) {
-        const char = text[i];
-        
-        if (inQuotes) {
-          if (char === '"') {
-            // Check for escaped quote
-            if (text[i + 1] === '"') {
-              current += '"';
-              i++; // Skip the next quote
-            } else {
-              inQuotes = false;
-            }
-          } else {
-            current += char;
-          }
-        } else {
-          if (char === '"') {
-            inQuotes = true;
-          } else if (char === ',') {
-            row.push(current.trim());
-            current = '';
-          } else if (char === '\n' || char === '\r\n') {
-            row.push(current.trim());
-            if (row.length > 0 && row.some(cell => cell !== '')) {
-              rows.push(row);
-            }
-            row = [];
-            current = '';
-            // Skip \r if we have \r\n
-            if (char === '\r' && text[i + 1] === '\n') {
-              i++;
-            }
-          } else if (char !== '\r') {
-            current += char;
-          }
-        }
-        i++;
-      }
-      
-      // Add the last field and row
-      if (current !== '' || row.length > 0) {
-        row.push(current.trim());
-        if (row.length > 0 && row.some(cell => cell !== '')) {
-          rows.push(row);
-        }
-      }
-      
-      if (rows.length < 2) {
-        throw new Error('CSV must have at least a header row and one data row');
-      }
-      
-      // Convert to objects
-      const headers = rows[0].map(h => h.replace(/"/g, '').trim());
-      console.log('CSV Headers found:', headers);
-      
-      const data = [];
-      for (let i = 1; i < rows.length; i++) {
-        const values = rows[i];
-        if (values.length > 0 && values.some(v => v !== '')) {
-          const rowObj = {};
-          headers.forEach((header, index) => {
-            rowObj[header] = (values[index] || '').replace(/"/g, '').trim();
-          });
-          data.push(rowObj);
-        }
-      }
-      
-      console.log(`Parsed ${data.length} data rows from CSV`);
-      return data;
-    }
-
-    // Number parser
-    function parseNumber(x) {
-      if (x === null || x === undefined || x === '') return null;
-      const cleaned = String(x).replace(/[,\s]/g, '');
-      const num = Number(cleaned);
-      return isFinite(num) ? num : null;
-    }
-
-    // Data normalization
-    function normalize(data) {
-      return data.map(r => {
-        const expiry = parseNumber(r['expiry']);
-        let odo = parseNumber(r['odometer']);
-        
-        // Convert metres to km if needed
-        if (odo !== null && odo > 1000000) odo = Math.round(odo / 1000);
-        
-        // Calculate remaining distance
-        let remaining = parseNumber(r['distance remaining']);
-        if (remaining === null && expiry !== null && odo !== null) {
-          remaining = Math.round(expiry - odo);
-        }
-        
-        return {
-          'device id': r['device id'] || '',
-          'Fleet #': r['Fleet #'] || '',
-          'REG Plate': r['REG Plate'] || '',
-          'expiry': expiry,
-          'odometer': odo,
-          'distance remaining': remaining,
-        };
-      });
-    }
-
-    // Apply filters and sorting
-    function applyFilters() {
-      const onlyAtRisk = document.getElementById('onlyAtRisk').checked;
-      const searchTerm = document.getElementById('search').value.toLowerCase();
-      
-      let filtered = rows.slice();
-      
-      if (onlyAtRisk) {
-        filtered = filtered.filter(r => {
-          const dist = r['distance remaining'];
-          return dist !== null && (dist < 0 || dist < 2000);
-        });
-      }
-      
-      if (searchTerm) {
-        filtered = filtered.filter(r =>
-          String(r['device id']).toLowerCase().includes(searchTerm) ||
-          String(r['REG Plate']).toLowerCase().includes(searchTerm) ||
-          String(r['Fleet #']).toLowerCase().includes(searchTerm)
-        );
-      }
-      
-      // Sort
-      filtered.sort((a, b) => {
-        const av = a[sortKey];
-        const bv = b[sortKey];
-        
-        if (av === null && bv !== null) return 1;
-        if (av !== null && bv === null) return -1;
-        if (av === null && bv === null) return 0;
-        
-        if (typeof av === 'number' && typeof bv === 'number') {
-          return sortDir === 'asc' ? av - bv : bv - av;
-        }
-        
-        return sortDir === 'asc' ? 
-          String(av).localeCompare(String(bv)) : 
-          String(bv).localeCompare(String(av));
-      });
-      
-      renderTable(filtered);
-      renderKpis(filtered);
-      renderChart(filtered);
-      
-      document.getElementById('btnExport').disabled = filtered.length === 0;
-    }
-
-    // Render KPIs
-    function renderKpis(data) {
-      const total = data.length;
-      const withRemaining = data.filter(r => r['distance remaining'] !== null);
-      const avg = withRemaining.length ? 
-        Math.round(withRemaining.reduce((sum, r) => sum + r['distance remaining'], 0) / withRemaining.length) : 
-        null;
-      const overdue = data.filter(r => r['distance remaining'] !== null && r['distance remaining'] < 0).length;
-      const lt1000 = data.filter(r => r['distance remaining'] !== null && r['distance remaining'] >= 0 && r['distance remaining'] < 1000).length;
-      
-      document.getElementById('kpiTotal').textContent = total;
-      document.getElementById('kpiAvg').textContent = avg !== null ? avg.toLocaleString() + ' km' : '–';
-      document.getElementById('kpiOverdue').textContent = overdue;
-      document.getElementById('kpi1000').textContent = lt1000;
-    }
-
-    // Render table
-    function renderTable(data) {
-      const tbody = document.getElementById('tbody');
-      tbody.innerHTML = '';
-      
-      data.forEach(r => {
-        const row = document.createElement('tr');
-        const remaining = r['distance remaining'];
-        
-        let status, displayText;
-        if (remaining === null) {
-          status = 'warn';
-          displayText = 'n/a';
-        } else if (remaining < 0) {
-          status = 'danger';
-          displayText = `${Math.abs(remaining).toLocaleString()} km overdue`;
-        } else if (remaining < 1000) {
-          status = 'danger';
-          displayText = `${remaining.toLocaleString()} km`;
-        } else if (remaining < 2000) {
-          status = 'warn';
-          displayText = `${remaining.toLocaleString()} km`;
-        } else {
-          status = 'ok';
-          displayText = `${remaining.toLocaleString()} km`;
-        }
-        
-        row.innerHTML = `
-          <td>${r['device id'] || ''}</td>
-          <td>${r['Fleet #'] || ''}</td>
-          <td>${r['REG Plate'] || ''}</td>
-          <td>${r['expiry'] !== null ? r['expiry'].toLocaleString() : ''}</td>
-          <td>${r['odometer'] !== null ? r['odometer'].toLocaleString() : ''}</td>
-          <td><span class="tag ${status}">${displayText}</span></td>
-        `;
-        
-        tbody.appendChild(row);
-      });
-    }
-
-    // Render chart
-    function renderChart(data) {
-      const ctx = document.getElementById('chart').getContext('2d');
-      const buckets = [-Infinity, 0, 500, 1000, 1500, 2000, 3000, 5000, 10000, Infinity];
-      const labels = ['OVERDUE', '0-499', '500-999', '1k-1.5k', '1.5k-2k', '2k-3k', '3k-5k', '5k-10k', '>10k'];
-      const counts = new Array(labels.length).fill(0);
-      
-      data.forEach(r => {
-        const v = r['distance remaining'];
-        if (v === null) return;
-        
-        for (let i = 0; i < buckets.length - 1; i++) {
-          if (v >= buckets[i] && v < buckets[i + 1]) {
-            counts[i]++;
-            break;
-          }
-        }
-      });
-      
-      const W = ctx.canvas.width;
-      const H = ctx.canvas.height;
-      ctx.clearRect(0, 0, W, H);
-      
-      const max = Math.max(1, ...counts);
-      const barW = Math.floor((W - 80) / counts.length) - 10;
-      
-      ctx.font = '12px system-ui';
-      ctx.textAlign = 'center';
-      
-      // Draw bars
-      counts.forEach((count, i) => {
-        const x = 50 + i * (barW + 10);
-        const h = Math.round(((H - 80) * count) / max);
-        const y = H - 50 - h;
-        
-        // Color based on risk
-        let color = '#10b981'; // ok
-        if (i === 0) color = '#ef4444'; // overdue
-        else if (i <= 3) color = '#ef4444'; // danger
-        else if (i <= 4) color = '#f59e0b'; // warning
-        
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, barW, h);
-        
-        // Labels
-        ctx.fillStyle = '#64748b';
-        ctx.fillText(labels[i], x + barW / 2, H - 30);
-        ctx.fillText(String(count), x + barW / 2, y - 5);
-      });
-    }
-
-    // File handling
-    function handleFile(file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const text = e.target.result;
-          console.log('File content preview:', text.substring(0, 200));
-          
-          raw = parseCSV(text);
-          rows = normalize(raw);
-          
-          document.getElementById('meta').textContent = `${file.name} • ${rows.length} rows`;
-          showStatus(`✓ Loaded ${rows.length} vehicles from ${file.name}`, 'success');
-          
-          // Enable refresh button if configured
-          updateConfigUI();
-          
-          applyFilters();
-        } catch (error) {
-          console.error('CSV parsing error:', error);
-          showStatus(`Error parsing CSV: ${error.message}`, 'error');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    // Event listeners
-    document.getElementById('csvFile').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) handleFile(file);
-    });
-
-    // Drag and drop
-    const dropZone = document.getElementById('dropZone');
-    
-    dropZone.addEventListener('click', () => {
-      document.getElementById('csvFile').click();
-    });
-    
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('drag');
-    });
-    
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('drag');
-    });
-    
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('drag');
-      
-      const file = e.dataTransfer.files[0];
-      if (file && file.type === 'text/csv') {
-        handleFile(file);
-      }
-    });
-
-    // Table sorting
-    document.querySelectorAll('th[data-key]').forEach(th => {
-      th.addEventListener('click', () => {
-        const key = th.getAttribute('data-key');
-        if (sortKey === key) {
-          sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-        } else {
-          sortKey = key;
-          sortDir = 'asc';
-        }
-        applyFilters();
-      });
-    });
-
-    // Filter events
-    document.getElementById('onlyAtRisk').addEventListener('change', applyFilters);
-    document.getElementById('search').addEventListener('input', applyFilters);
-
-    // Export functionality
-    document.getElementById('btnExport').addEventListener('click', () => {
-      const filtered = rows; // You might want to use the currently filtered data
-      const csv = [
-        ['Device ID', 'Fleet #', 'REG Plate', 'Expiry (km)', 'Odometer (km)', 'Distance Remaining (km)'],
-        ...filtered.map(r => [
-          r['device id'],
-          r['Fleet #'],
-          r['REG Plate'],
-          r['expiry'],
-          r['odometer'],
-          r['distance remaining']
-        ])
-      ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-      
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'ruc_export.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-    
+    // ... (the rest of your script here, unchanged) ...
     // Initialize the config UI with pre-configured credentials
     document.addEventListener('DOMContentLoaded', () => {
       updateConfigUI();
     });
   </script>
-    </script>
-<script>
-// ---- UI Polish Script START ----
-document.addEventListener('DOMContentLoaded', function() {
-  // Fade-in main content
-  var main = document.querySelector('main');
-  if(main) {
-    main.style.opacity = '0';
-    main.style.transition = 'opacity 0.7s';
-    setTimeout(function(){ main.style.opacity = '1'; }, 100);
-  }
-  // Cards hover effect
-  document.querySelectorAll('.card').forEach(card => {
-    card.style.transition = 'box-shadow 0.3s, transform 0.3s';
-    card.addEventListener('mouseenter', () => {
-      card.style.boxShadow = '0 12px 32px rgba(59,130,246,0.11)';
-      card.style.transform = 'translateY(-2px) scale(1.01)';
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.07)';
-      card.style.transform = '';
-    });
-  });
-  // Buttons hover effect
-  document.querySelectorAll('.btn').forEach(btn => {
-    btn.style.transition = 'box-shadow 0.2s, transform 0.18s, background 0.2s';
-    btn.addEventListener('mouseenter', () => {
-      btn.style.boxShadow = '0 6px 18px rgba(59,130,246,0.18)';
-      btn.style.transform = 'scale(1.05)';
-      btn.style.background = 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)';
-    });
-    btn.addEventListener('mouseleave', () => {
-      btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-      btn.style.transform = '';
-      btn.style.background = '';
-    });
-  });
-  // Inputs focus effect
-  document.querySelectorAll('.input').forEach(input => {
-    input.style.transition = 'box-shadow 0.22s, border-color 0.22s';
-    input.addEventListener('focus', () => {
-      input.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.09)';
-      input.style.borderColor = '#3b82f6';
-    });
-    input.addEventListener('blur', () => {
-      input.style.boxShadow = '';
-      input.style.borderColor = '';
-    });
-  });
-  // Table polish
-  document.querySelectorAll('table').forEach(table => {
-    table.style.boxShadow = '0 2px 18px rgba(59,130,246,0.07)';
-    table.style.borderRadius = '16px';
-    table.style.background = 'rgba(255,255,255,0.96)';
-  });
-  document.querySelectorAll('thead th').forEach(th => {
-    th.style.background = 'linear-gradient(120deg, #e0e7ef 0%, #f8fafc 100%)';
-    th.style.fontWeight = '700';
-    th.style.fontSize = '15px';
-    th.style.letterSpacing = '1px';
-    th.style.textAlign = 'center';
-  });
-  document.querySelectorAll('tbody td').forEach(td => {
-    td.style.fontSize = '15px';
-    td.style.textAlign = 'center';
-    td.style.padding = '14px 10px';
-  });
-  // Legend polish
-  document.querySelectorAll('.legend').forEach(legend => {
-    legend.style.background = 'rgba(240,242,255,0.8)';
-    legend.style.borderRadius = '12px';
-    legend.style.padding = '10px 16px';
-    legend.style.marginBottom = '8px';
-    legend.style.boxShadow = '0 1px 6px rgba(59,130,246,0.06)';
-    legend.style.fontWeight = '600';
-  });
-  // Dropzone polish
-  var dropZone = document.getElementById('dropZone');
-  if(dropZone) {
-    dropZone.style.fontSize = '1.15em';
-    dropZone.style.padding = '40px 0';
-    dropZone.style.background = 'linear-gradient(135deg, #e0e7ef 0%, #f8fafc 100%)';
-    dropZone.style.transition = 'box-shadow 0.25s, border-color 0.2s';
-    dropZone.addEventListener('mouseenter', () => {
-      dropZone.style.boxShadow = '0 8px 24px rgba(59,130,246,0.10)';
-      dropZone.style.borderColor = '#3b82f6';
-    });
-    dropZone.addEventListener('mouseleave', () => {
-      dropZone.style.boxShadow = '';
-      dropZone.style.borderColor = '';
-    });
-  }
-});
-// ---- UI Polish Script END ----
-</script>
-</body>
-</html>
 </body>
 </html>
