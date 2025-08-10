@@ -1,43 +1,504 @@
-# Create a new version of the HTML with Geotab-safe initialization and no API call
 
-simplified_html = geotab_safe_html.replace(
-    '''fetchVehicles();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RUC Distance Dashboard (Live v3)</title>
+  <style>
+    :root{--bg:#0b1220;--card:#121a2b;--muted:#a7b1c2;--text:#e7eefc;--accent:#4ea1ff;--warn:#ffb020;--danger:#ff5a67;--ok:#27d17f}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif}
+    header{padding:18px 22px;border-bottom:1px solid #1d2a44;display:flex;gap:14px;align-items:center;justify-content:space-between}
+    header h1{font-size:18px;margin:0;font-weight:700}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .btn{background:var(--accent);border:none;color:#fff;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    .btn.secondary{background:#22314f;color:var(--text)} .btn:disabled{opacity:.6;cursor:not-allowed}
+    .input{background:#0e1628;border:1px solid #23324f;color:var(--text);padding:10px;border-radius:10px}
+    main{padding:18px} .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .card{background:var(--card);border:1px solid #1d2a44;border-radius:16px;padding:14px}
+    .kpi{display:flex;flex-direction:column;gap:4px} .kpi .label{color:var(--muted);font-size:12px} .kpi .value{font-size:24px;font-weight:800}
+    .row{display:flex;gap:10px;flex-wrap:wrap} .pill{padding:4px 10px;border-radius:999px;border:1px solid #2a3a5d;color:var(--muted)}
+    .legend{display:flex;gap:8px;align-items:center} .legend span{height:10px;width:10px;display:inline-block;border-radius:2px}
+    .legend .danger{background:var(--danger)} .legend .warn{background:var(--warn)} .legend .ok{background:var(--ok)}
+    table{width:100%;border-collapse:separate;border-spacing:0 8px} thead th{color:var(--muted);font-weight:700;text-align:left;padding:8px;cursor:pointer}
+    tbody td{padding:10px 8px;background:#0f182b;border-top:1px solid #1f2b47;border-bottom:1px solid #1f2b47}
+    tbody tr td:first-child{border-left:1px solid #1f2b47;border-top-left-radius:12px;border-bottom-left-radius:12px}
+    tbody tr td:last-child{border-right:1px solid #1f2b47;border-top-right-radius:12px;border-bottom-right-radius:12px}
+    .tag{padding:4px 8px;border-radius:7px;font-size:12px;font-weight:700;display:inline-block}
+    .tag.danger{background:rgba(255,90,103,.12);color:#ff8c94;border:1px solid rgba(255,90,103,.3)}
+    .tag.warn{background:rgba(255,176,32,.12);color:#ffd08a;border:1px solid rgba(255,176,32,.3)}
+    .tag.ok{background:rgba(39,209,127,.12);color:#8cf0c1;border:1px solid rgba(39,209,127,.3)}
+    .foot{color:var(--muted);font-size:12px;margin-top:6px}
+    canvas{width:100%;height:220px;background:#0e1628;border-radius:12px;border:1px solid #1d2a44}
+    .cfg{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .drop{border:2px dashed #2a3a5d;border-radius:12px;padding:18px;text-align:center;color:var(--muted);cursor:pointer}
+    .drop.drag{background:#0e1628;color:#cfe0ff}
+    .err{color:#ff8c94}
+    .rowbuttons{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    textarea{width:100%;min-height:160px;background:#0e1628;color:var(--text);border:1px solid #23324f;border-radius:10px;padding:10px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>RUC Distance Dashboard (Live v3)</h1>
+    <div class="controls">
+      <input id="csvFile" class="input" type="file" accept=".csv,text/csv" />
+      <button class="btn" id="btnPaste">Paste CSV</button>
+      <button class="btn secondary" id="btnSample">Load sample</button>
+      <button class="btn" id="btnRefresh" disabled>Refresh Live Odometer</button>
+      <button class="btn" id="btnExport" disabled>Export filtered CSV</button>
+      <label class="pill"><input type="checkbox" id="toggleExcluded" checked /> Hide excluded</label>
+      <label class="pill"><input type="checkbox" id="onlyAtRisk" /> Only at risk (&lt; 2000km)</label>
+      <input id="search" class="input" type="search" placeholder="Search (device, plate, fleet #)" />
+    </div>
+  </header>
+  <main>
+    <div class="grid">
+      <section class="card" style="grid-column: span 12;">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="legend">
+            <span class="danger"></span><small>&lt; 1000 km</small>
+            <span class="warn" style="margin-left:12px"></span><small>1000–2000 km</small>
+            <span class="ok" style="margin-left:12px"></span><small>&gt; 2000 km</small>
+          </div>
+          <div class="foot" id="meta">Drop a CSV below, paste it, or use the picker.</div>
+        </div>
+      </section>
 
-                    if (callback) {
-                        callback();
-                    }''',
-    '''showContent();
-                    if (callback) {
-                        callback();
-                    }'''
-).replace(
-    '''
-            async function fetchVehicles() {
-                try {
-                    console.log("Fetching vehicles...");
-                    vehicles = await api.call("Get", {
-                        typeName: "Device"
-                    });
-                    console.log(vehicles.length + " vehicles loaded successfully.");
-                    showContent();
-                } catch (err) {
-                    console.error("Error fetching vehicles: ", err);
-                    showError("Could not load vehicle data from Geotab. " + err.message);
-                }
-            }''',
-    ''  # Completely remove the fetchVehicles() block
-).replace(
-    '''if (vehicles.length === 0) {
-                    showError("No vehicles loaded from Geotab yet. Please wait a moment and try again.");
-                    return;
-                }
+      <section class="card" style="grid-column: span 12;">
+        <div id="drop" class="drop">Drop CSV here</div>
+        <div class="foot" id="err" style="display:none"></div>
+        <div class="foot" id="preview" style="display:none"></div>
+      </section>
 
-                if (rucData.length === 0) {''',
-    '''if (rucData.length === 0) {'''
-)
+      <section class="card" style="grid-column: span 12; display:none" id="pasteCard">
+        <div class="rowbuttons">
+          <strong>Paste CSV text</strong>
+          <button class="btn" id="btnParsePaste">Parse</button>
+          <button class="btn secondary" id="btnClosePaste">Close</button>
+        </div>
+        <textarea id="pasteArea" placeholder="Paste CSV rows including headers..."></textarea>
+      </section>
 
-# Save the simplified version that doesn't rely on Geotab API call
-simplified_path = Path("/mnt/data/ruc_addin_geotab_noworkingapi.html")
-simplified_path.write_text(simplified_html)
+      <section class="card" style="grid-column: span 12;">
+        <div class="cfg">
+          <strong>Live Geotab config</strong>
+          <input id="db" class="input" placeholder="Database (e.g., uccnz)" style="min-width:200px">
+          <input id="user" class="input" placeholder="Username" style="min-width:220px">
+          <input id="pass" class="input" placeholder="Password" type="password" style="min-width:200px">
+          <input id="diag" class="input" placeholder="Diagnostic ID (optional)" style="min-width:240px">
+          <button class="btn secondary" id="btnSaveCfg">Save</button>
+          <span class="foot" id="cfgMsg">Not configured.</span>
+        </div>
+      </section>
 
-simplified_path.name
+      <section class="card" style="grid-column: span 3;">
+        <div class="kpi"><div class="label">Vehicles</div><div class="value" id="kpiTotal">–</div></div>
+      </section>
+      <section class="card" style="grid-column: span 3;">
+        <div class="kpi"><div class="label">Avg Distance Remaining</div><div class="value" id="kpiAvg">–</div></div>
+      </section>
+      <section class="card" style="grid-column: span 3;">
+        <div class="kpi"><div class="label">&lt; 2000 km</div><div class="value" id="kpi2000">–</div></div>
+      </section>
+      <section class="card" style="grid-column: span 3;">
+        <div class="kpi"><div class="label">&lt; 1000 km</div><div class="value" id="kpi1000">–</div></div>
+      </section>
+
+      <section class="card" style="grid-column: span 12;">
+        <canvas id="chart"></canvas>
+      </section>
+
+      <section class="card" style="grid-column: span 12;">
+        <table>
+          <thead>
+            <tr>
+              <th data-key="device id">Device ID ▲▼</th>
+              <th data-key="Fleet #">Fleet # ▲▼</th>
+              <th data-key="REG Plate">REG Plate ▲▼</th>
+              <th data-key="expiry">Expiry (km) ▲▼</th>
+              <th data-key="odometer">Odometer (km) ▲▼</th>
+              <th data-key="distance remaining">Distance Remaining (km) ▲▼</th>
+              <th data-key="exclude">Excluded</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // ---------- Utils ----------
+    const $ = sel => document.querySelector(sel);
+
+    function showErr(msg){
+      const el = $('#err');
+      el.style.display = 'block';
+      el.className = 'foot err';
+      el.textContent = msg;
+    }
+    function clearErr(){ const el=$('#err'); el.style.display='none'; el.textContent=''; }
+    function showPreview(text){
+      const p = $('#preview');
+      p.style.display = 'block';
+      p.textContent = 'Preview: ' + text.slice(0, 200).replace(/\\n/g, ' ') + (text.length>200?'...':'');
+    }
+
+    function parseNumber(x){
+      if(x===null||x===undefined) return null;
+      const n = String(x).replace(/[,\\s]/g, "");
+      if(n==="") return null;
+      const v = Number(n);
+      return Number.isFinite(v) ? v : null;
+    }
+    function stripBOM(s){ return s && s.charCodeAt(0)===0xFEFF ? s.slice(1) : s; }
+    function detectDelimiter(headerLine){
+      const picks=[',',';','\\t'];
+      let best=','; let max=-1;
+      for(const d of picks){
+        const re = new RegExp(d==='\\t'?'\\t':d, 'g');
+        const n = (headerLine.match(re)||[]).length;
+        if(n>max){ max=n; best=d; }
+      }
+      return best;
+    }
+    function parseCSV(text){
+      text = stripBOM(text||'');
+      if(!text) throw new Error('Empty file');
+      const firstNL = text.indexOf('\\n');
+      const headerLine = firstNL>0 ? text.slice(0, firstNL) : text;
+      const delim = detectDelimiter(headerLine);
+      if(!headerLine || headerLine.length<3) throw new Error('Header row missing or too short');
+      const rows=[]; let row=[]; let cur=''; let inQ=false; let i=0;
+      while(i<text.length){
+        const c=text[i];
+        if(inQ){
+          if(c==='\"'){ if(text[i+1]==='\"'){ cur+='\"'; i++; } else { inQ=false; } }
+          else { cur+=c; }
+        } else {
+          if(c==='\"') inQ=true;
+          else if(c===delim){ row.push(cur); cur=''; }
+          else if(c==='\\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+          else if(c==='\\r'){ }
+          else { cur+=c; }
+        }
+        i++;
+      }
+      if(cur!==''||row.length){ row.push(cur); rows.push(row); }
+      const header = rows.shift()||[];
+      if(header.length<2) throw new Error('Could not parse the header row - check delimiter and quotes');
+      return rows.filter(r=>r.length && r.some(v=>v!=='')).map(r=>{
+        const o={};
+        header.forEach((h,idx)=>{ o[h.trim()] = (r[idx]??'').trim(); });
+        return o;
+      });
+    }
+
+    function downloadCSV(filename, rows){
+      if(!rows.length) return;
+      const headers = Object.keys(rows[0]);
+      const esc = v => '\"'+String(v).replaceAll('\"','\"\"')+'\"';
+      const lines = [headers.map(esc).join(',')].concat(rows.map(r=> headers.map(h=> esc(r[h]??'')).join(',')));
+      const blob = new Blob([lines.join('\\n')], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download=filename; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    }
+
+    // ---------- State ----------
+    let raw = [];
+    let rows = [];
+    let sortKey = 'distance remaining';
+    let sortDir = 'asc';
+
+    const cfg = {
+      db: localStorage.getItem('ruc.db') || '',
+      user: localStorage.getItem('ruc.user') || '',
+      pass: localStorage.getItem('ruc.pass') || '',
+      diag: localStorage.getItem('ruc.diag') || 'DiagnosticOdometerAdjustmentId',
+      proxy: 'http://localhost:5009/odometer_bulk',
+    };
+    function updateCfgUI(){
+      $('#db').value = cfg.db;
+      $('#user').value = cfg.user;
+      $('#pass').value = cfg.pass;
+      $('#diag').value = cfg.diag;
+      $('#cfgMsg').textContent = cfg.db && cfg.user ? 'Saved locally' : 'Not configured.';
+      $('#btnRefresh').disabled = !(cfg.db && cfg.user && cfg.pass);
+    }
+
+    // ---------- Normalize & Render ----------
+    function normalize(data){
+      const normKey = k => (k||'').toLowerCase();
+      return data.map(r=>{
+        const byLower = {}; Object.keys(r).forEach(k=> byLower[normKey(k)] = r[k]);
+        const expiry = parseNumber(byLower['expiry']);
+        let odo = parseNumber(byLower['odometer']);
+        if(odo !== null && odo > 1000000) odo = Math.round(odo/1000); // metres->km fallback
+        let remaining = parseNumber(byLower['distance remaining']);
+        if((remaining===null || isNaN(remaining)) && expiry!==null && odo!==null){
+          remaining = Math.max(0, Math.round(expiry - odo));
+        }
+        return {
+          'device id': byLower['device id']||'',
+          'Fleet #': byLower['fleet #']||'',
+          'REG Plate': byLower['reg plate']||'',
+          'expiry': expiry,
+          'odometer': odo,
+          'distance remaining': remaining,
+          'exclude': byLower['exclude']||'',
+        };
+      });
+    }
+
+    function applyFilters(){
+      const hideExcluded = $('#toggleExcluded').checked;
+      const onlyAtRisk = $('#onlyAtRisk').checked;
+      const q = $('#search').value.trim().toLowerCase();
+      let filtered = rows.slice();
+      if(hideExcluded){ filtered = filtered.filter(r=> !r['exclude']); }
+      if(onlyAtRisk){ filtered = filtered.filter(r=> (r['distance remaining']??Infinity) < 2000); }
+      if(q){
+        filtered = filtered.filter(r=>
+          String(r['device id']).toLowerCase().includes(q) ||
+          String(r['REG Plate']).toLowerCase().includes(q) ||
+          String(r['Fleet #']).toLowerCase().includes(q)
+        );
+      }
+      filtered.sort((a,b)=>{
+        const av = a[sortKey]; const bv = b[sortKey];
+        if(av==null && bv!=null) return 1;
+        if(av!=null && bv==null) return -1;
+        if(av==null && bv==null) return 0;
+        if(typeof av === 'number' && typeof bv === 'number') return sortDir==='asc'? av-bv : bv-av;
+        return sortDir==='asc'? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
+      });
+      renderTable(filtered);
+      renderKpis(filtered);
+      renderChart(filtered);
+      $('#btnExport').disabled = filtered.length===0;
+      $('#btnExport').onclick = ()=> downloadCSV('ruc_dashboard_filtered.csv', filtered.map(r=>({
+        'device id': r['device id'],
+        'Fleet #': r['Fleet #'],
+        'REG Plate': r['REG Plate'],
+        'expiry': r['expiry'],
+        'odometer': r['odometer'],
+        'distance remaining': r['distance remaining'],
+        'exclude': r['exclude'],
+      })));
+    }
+
+    function renderKpis(data){
+      const total = data.length;
+      const rem = data.map(r=>r['distance remaining']).filter(v=>v!=null);
+      const avg = rem.length? Math.round(rem.reduce((a,b)=>a+b,0)/rem.length) : null;
+      const lt2000 = data.filter(r=> (r['distance remaining']??Infinity) < 2000).length;
+      const lt1000 = data.filter(r=> (r['distance remaining']??Infinity) < 1000).length;
+      $('#kpiTotal').textContent = total;
+      $('#kpiAvg').textContent = avg==null? '–' : avg.toLocaleString();
+      $('#kpi2000').textContent = lt2000;
+      $('#kpi1000').textContent = lt1000;
+    }
+
+    function renderTable(data){
+      const tb = $('#tbody');
+      tb.innerHTML = '';
+      for(const r of data){
+        const tr = document.createElement('tr');
+        const status = r['distance remaining']==null ? 'warn' : r['distance remaining']<1000 ? 'danger' : r['distance remaining']<2000 ? 'warn' : 'ok';
+        tr.innerHTML = `
+          <td>${r['device id']||''}</td>
+          <td>${r['Fleet #']||''}</td>
+          <td>${r['REG Plate']||''}</td>
+          <td>${r['expiry']!=null? r['expiry'].toLocaleString():''}</td>
+          <td>${r['odometer']!=null? r['odometer'].toLocaleString():''}</td>
+          <td><span class="tag ${status}">${r['distance remaining']!=null? r['distance remaining'].toLocaleString(): 'n/a'}</span></td>
+          <td>${r['exclude']? 'Yes':''}</td>
+        `;
+        tb.appendChild(tr);
+      }
+    }
+
+    function renderChart(data){
+      const ctx = document.getElementById('chart').getContext('2d');
+      const buckets = [0,500,1000,1500,2000,3000,5000,10000,Infinity];
+      const labels = ['<500','500–999','1k–1.5k','1.5k–2k','2k–3k','3k–5k','5k–10k','>10k'];
+      const counts = new Array(labels.length).fill(0);
+      for(const r of data){
+        const v = r['distance remaining'];
+        if(v==null) continue;
+        let idx = 0;
+        for(let i=0;i<buckets.length-1;i++){
+          if(v>=buckets[i] && v<buckets[i+1]){ idx = i; break; }
+        }
+        counts[idx]++;
+      }
+      const W = ctx.canvas.width, H = ctx.canvas.height;
+      ctx.clearRect(0,0,W,H);
+      const max = Math.max(1, ...counts);
+      const barW = Math.floor((W - 40) / counts.length) - 8;
+      ctx.font = '12px system-ui';
+      ctx.fillStyle = '#a7b1c2';
+      ctx.textAlign = 'center';
+      ctx.strokeStyle = '#23324f';
+      ctx.beginPath(); ctx.moveTo(30,10); ctx.lineTo(30,H-30); ctx.lineTo(W-10,H-30); ctx.stroke();
+      for(let i=0;i<counts.length;i++){
+        const x = 40 + i*(barW+8);
+        const h = Math.round(((H-60) * counts[i]) / max);
+        const y = (H-30) - h;
+        let fill = '#27d17f';
+        if(i<=2) fill = '#ff5a67';
+        else if(i<=3) fill = '#ffb020';
+        ctx.fillStyle = fill;
+        ctx.fillRect(x, y, barW, h);
+        ctx.fillStyle = '#a7b1c2';
+        ctx.fillText(labels[i], x+barW/2, H-12);
+        ctx.fillText(String(counts[i]), x+barW/2, y-4);
+      }
+    }
+
+    // ---------- Live refresh via local proxy ----------
+    async function refreshLiveOdometer(){
+      try {
+        const ids = rows.filter(r=>!r['exclude'] && r['device id']).map(r=>r['device id']);
+        if(ids.length===0) return;
+        const body = {
+          database: $('#db').value.trim(),
+          username: $('#user').value.trim(),
+          password: $('#pass').value,
+          deviceIds: ids,
+          diagnosticId: $('#diag').value.trim() || 'DiagnosticOdometerAdjustmentId',
+        };
+        const res = await fetch('http://localhost:5009/odometer_bulk', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body),
+        });
+        const js = await res.json();
+        if(!res.ok || !js.ok){
+          showErr('Live refresh failed: ' + (js.error || res.statusText)); return;
+        }
+        const kmMap = js.data || {};
+        let touched = 0;
+        rows = rows.map(r=>{
+          const dev = r['device id'];
+          if(dev && (dev in kmMap)){
+            r['odometer'] = kmMap[dev];
+            if(r['expiry']!=null) r['distance remaining'] = Math.max(0, Math.round(r['expiry'] - r['odometer']));
+            touched++;
+          }
+          return r;
+        });
+        applyFilters();
+        $('#cfgMsg').textContent = `Live updated ${touched} vehicles at ${new Date().toLocaleTimeString()}`;
+      } catch (e){
+        showErr('Live refresh error: ' + e);
+      }
+    }
+
+    // ---------- Events ----------
+    $('#btnSaveCfg').addEventListener('click', ()=>{
+      cfg.db = $('#db').value.trim();
+      cfg.user = $('#user').value.trim();
+      cfg.pass = $('#pass').value;
+      cfg.diag = $('#diag').value.trim() || 'DiagnosticOdometerAdjustmentId';
+      localStorage.setItem('ruc.db', cfg.db);
+      localStorage.setItem('ruc.user', cfg.user);
+      localStorage.setItem('ruc.pass', cfg.pass);
+      localStorage.setItem('ruc.diag', cfg.diag);
+      updateCfgUI();
+      clearErr();
+    });
+    $('#btnRefresh').addEventListener('click', refreshLiveOdometer);
+
+    document.querySelectorAll('th[data-key]').forEach(th=>{
+      th.addEventListener('click', ()=>{
+        const key = th.getAttribute('data-key');
+        if(sortKey===key){ sortDir = (sortDir==='asc'?'desc':'asc'); }
+        else { sortKey = key; sortDir = 'asc'; }
+        applyFilters();
+      });
+    });
+
+    $('#csvFile').addEventListener('change', e=>{
+      const file = e.target.files?.[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try{
+          clearErr();
+          const txt = String(ev.target.result||'');
+          showPreview(txt);
+          raw = parseCSV(txt);
+          rows = normalize(raw);
+          $('#meta').textContent = `${file.name} • ${rows.length} rows`;
+          applyFilters();
+        }catch(err){ showErr('CSV parse error: ' + err); }
+      };
+      reader.onerror = () => showErr('Failed to read file. Try saving as UTF-8 CSV and reloading.');
+      reader.readAsText(file);
+    });
+
+    // Drag & drop
+    const drop = $('#drop');
+    ;['dragenter','dragover'].forEach(evt=> drop.addEventListener(evt, e=>{ e.preventDefault(); e.stopPropagation(); drop.classList.add('drag'); }));
+    ;['dragleave','drop'].forEach(evt=> drop.addEventListener(evt, e=>{ e.preventDefault(); e.stopPropagation(); drop.classList.remove('drag'); }));
+    drop.addEventListener('drop', e=>{
+      const file = e.dataTransfer.files?.[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try{
+          clearErr();
+          const txt = String(ev.target.result||'');
+          showPreview(txt);
+          raw = parseCSV(txt);
+          rows = normalize(raw);
+          $('#meta').textContent = `${file.name} • ${rows.length} rows`;
+          applyFilters();
+        }catch(err){ showErr('CSV parse error: ' + err); }
+      };
+      reader.onerror = () => showErr('Failed to read file. Try saving as UTF-8 CSV and reloading.');
+      reader.readAsText(file);
+    });
+
+    // Paste CSV
+    $('#btnPaste').addEventListener('click', ()=>{ $('#pasteCard').style.display='block'; });
+    $('#btnClosePaste').addEventListener('click', ()=>{ $('#pasteCard').style.display='none'; });
+    $('#btnParsePaste').addEventListener('click', ()=>{
+      try{
+        clearErr();
+        const txt = $('#pasteArea').value || '';
+        if(!txt.trim()) { showErr('Paste area is empty'); return; }
+        showPreview(txt);
+        raw = parseCSV(txt);
+        rows = normalize(raw);
+        $('#meta').textContent = `Pasted CSV • ${rows.length} rows`;
+        applyFilters();
+        $('#pasteCard').style.display='none';
+      }catch(err){ showErr('CSV parse error: ' + err); }
+    });
+
+    // Sample loader
+    const SAMPLE = `device id,Fleet #,REG Plate,expiry,odometer,distance remaining,exclude
+bFC,445,FDT602,344012,320000,, 
+bCE,448,GUR891,268000,267500,, 
+b12A,463,FQC642,273010,272500,, 
+b101,465,JBB745,284000,285000,, 
+b174,469,GBP609,321000,319000,,b17B`;
+    $('#btnSample').addEventListener('click', ()=>{
+      try{
+        clearErr();
+        showPreview(SAMPLE);
+        raw = parseCSV(SAMPLE);
+        rows = normalize(raw);
+        $('#meta').textContent = `Sample data • ${rows.length} rows`;
+        applyFilters();
+      }catch(err){ showErr('Sample parse error: ' + err); }
+    });
+
+    // init
+    updateCfgUI();
+  </script>
+</body>
+</html>
