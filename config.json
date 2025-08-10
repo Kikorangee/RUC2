@@ -1,14 +1,17 @@
 {
-  "name": "RUC",
-  "supportEmail": "kikorangi@gmail.com",
-  "version": "1.0.2",
+  "name": "RUC Distance",
+  "supportEmail": "you@example.com",
+  "version": "1.0.1",
   "items": [
     {
-      "path": "RUCLink/",
+      "url": "https://kikorangee.github.io/RUC2/addin.html",
+      "path": "ActivityLink",
+      "category": "AddIns",
       "menuName": {
-        "en": "RUC"
-      }
+        "en": "RUC Distance"
+      },
+      "svgIcon": "https://kikorangee.github.io/RUC2/icon.svg"
     }
   ],
-  "isSigned": false
+  "files": {}
 }
