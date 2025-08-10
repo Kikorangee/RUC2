@@ -3,101 +3,406 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RUC Distance Dashboard</title>
+  <meta http-equiv="Content-Security-Policy" content="frame-ancestors *;">
+  <meta http-equiv="X-Frame-Options" content="ALLOWALL">
+  <title>RUC Dashboard</title>
   <style>
-    :root{--bg:#0b1220;--card:#121a2b;--muted:#a7b1c2;--text:#e7eefc;--accent:#4ea1ff;--warn:#ffb020;--danger:#ff5a67;--ok:#27d17f}
+    :root{
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --muted:#64748b;
+      --text:#1e293b;
+      --accent:#3b82f6;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --ok:#10b981;
+      --border:#e2e8f0;
+      --shadow:0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg:0 10px 25px rgba(0,0,0,0.1);
+    }
+    
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif}
-    header{padding:18px 22px;border-bottom:1px solid #1d2a44;display:flex;gap:14px;align-items:center;justify-content:space-between}
-    header h1{font-size:18px;margin:0;font-weight:700}
-    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-    .btn{background:var(--accent);border:none;color:#fff;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
-    .btn.secondary{background:#22314f;color:var(--text)}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    .input{background:#0e1628;border:1px solid #23324f;color:var(--text);padding:10px;border-radius:10px}
-    main{padding:18px}
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
-    .card{background:var(--card);border:1px solid #1d2a44;border-radius:16px;padding:14px}
-    .kpi{display:flex;flex-direction:column;gap:4px}
-    .kpi .label{color:var(--muted);font-size:12px}
-    .kpi .value{font-size:24px;font-weight:800}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .pill{padding:4px 10px;border-radius:999px;border:1px solid #2a3a5d;color:var(--muted)}
-    .legend{display:flex;gap:8px;align-items:center}
-    .legend span{height:10px;width:10px;display:inline-block;border-radius:2px}
-    .legend .danger{background:var(--danger)}
-    .legend .warn{background:var(--warn)}
-    .legend .ok{background:var(--ok)}
-    table{width:100%;border-collapse:separate;border-spacing:0 8px}
-    thead th{color:var(--muted);font-weight:700;text-align:left;padding:8px}
-    tbody td{padding:10px 8px;background:#0f182b;border-top:1px solid #1f2b47;border-bottom:1px solid #1f2b47}
-    tbody tr{border-radius:12px}
-    tbody tr td:first-child{border-left:1px solid #1f2b47;border-top-left-radius:12px;border-bottom-left-radius:12px}
-    tbody tr td:last-child{border-right:1px solid #1f2b47;border-top-right-radius:12px;border-bottom-right-radius:12px}
-    .tag{padding:4px 8px;border-radius:7px;font-size:12px;font-weight:700;display:inline-block}
-    .tag.danger{background:rgba(255,90,103,.12);color:#ff8c94;border:1px solid rgba(255,90,103,.3)}
-    .tag.warn{background:rgba(255,176,32,.12);color:#ffd08a;border:1px solid rgba(255,176,32,.3)}
-    .tag.ok{background:rgba(39,209,127,.12);color:#8cf0c1;border:1px solid rgba(39,209,127,.3)}
-    .flex{display:flex;align-items:center;gap:10px}
-    .grow{flex:1}
-    canvas{width:100%;height:220px;background:#0e1628;border-radius:12px;border:1px solid #1d2a44}
-    .foot{color:var(--muted);font-size:12px;margin-top:6px}
-    .hidden{display:none}
+    
+    body{
+      margin:0;
+      background:linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      color:var(--text);
+      font:14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Ubuntu,sans-serif;
+      min-height:100vh;
+    }
+    
+    header{
+      background:var(--card);
+      padding:20px 24px;
+      border-bottom:1px solid var(--border);
+      box-shadow:var(--shadow);
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      z-index:100;
+    }
+    
+    header h1{
+      font-size:24px;
+      margin:0;
+      font-weight:700;
+      background:linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+    
+    .btn{
+      background:linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+      border:none;
+      color:#fff;
+      padding:10px 16px;
+      border-radius:8px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.2s ease;
+      box-shadow:var(--shadow);
+      font-size:13px;
+    }
+    
+    .btn:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 4px 12px rgba(59,130,246,0.3);
+    }
+    
+    .btn:disabled{
+      opacity:0.5;
+      cursor:not-allowed;
+      transform:none;
+    }
+    
+    .btn.secondary{
+      background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    }
+    
+    .input{
+      background:var(--card);
+      border:2px solid var(--border);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:8px;
+      transition:all 0.2s ease;
+      font-size:13px;
+    }
+    
+    .input:focus{
+      outline:none;
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(59,130,246,0.1);
+    }
+    
+    main{
+      padding:24px;
+      max-width:1400px;
+      margin:0 auto;
+    }
+    
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:20px;
+    }
+    
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:20px;
+      box-shadow:var(--shadow);
+      transition:all 0.2s ease;
+    }
+    
+    .card:hover{
+      box-shadow:var(--shadow-lg);
+      transform:translateY(-2px);
+    }
+    
+    .kpi{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      text-align:center;
+    }
+    
+    .kpi .label{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    
+    .kpi .value{
+      font-size:28px;
+      font-weight:800;
+      background:linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    
+    .pill{
+      padding:8px 12px;
+      border-radius:20px;
+      border:2px solid var(--border);
+      color:var(--text);
+      font-size:13px;
+      font-weight:500;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      background:var(--card);
+      transition:all 0.2s ease;
+    }
+    
+    .legend{
+      display:flex;
+      gap:20px;
+      align-items:center;
+      font-size:13px;
+      font-weight:500;
+    }
+    
+    .legend span{
+      height:12px;
+      width:12px;
+      display:inline-block;
+      border-radius:3px;
+      box-shadow:var(--shadow);
+    }
+    
+    .legend .danger{background:linear-gradient(135deg, var(--danger) 0%, #dc2626 100%)}
+    .legend .warn{background:linear-gradient(135deg, var(--warn) 0%, #d97706 100%)}
+    .legend .ok{background:linear-gradient(135deg, var(--ok) 0%, #059669 100%)}
+    
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+    
+    thead th{
+      background:linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      color:var(--text);
+      font-weight:700;
+      text-align:left;
+      padding:16px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      border-bottom:2px solid var(--border);
+      cursor:pointer;
+      transition:background 0.2s ease;
+    }
+    
+    thead th:hover{
+      background:linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    }
+    
+    tbody td{
+      padding:16px;
+      background:var(--card);
+      border-bottom:1px solid var(--border);
+      font-size:14px;
+    }
+    
+    tbody tr{
+      transition:all 0.2s ease;
+    }
+    
+    tbody tr:hover{
+      background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      transform:scale(1.01);
+    }
+    
+    .tag{
+      padding:6px 12px;
+      border-radius:20px;
+      font-size:12px;
+      font-weight:700;
+      display:inline-block;
+      text-align:center;
+      min-width:80px;
+      box-shadow:var(--shadow);
+    }
+    
+    .tag.danger{
+      background:linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+      color:white;
+    }
+    
+    .tag.warn{
+      background:linear-gradient(135deg, var(--warn) 0%, #d97706 100%);
+      color:white;
+    }
+    
+    .tag.ok{
+      background:linear-gradient(135deg, var(--ok) 0%, #059669 100%);
+      color:white;
+    }
+    
+    canvas{
+      width:100%;
+      height:280px;
+      background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius:12px;
+      border:2px solid var(--border);
+      box-shadow:var(--shadow);
+    }
+    
+    .foot{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:500;
+    }
+    
+    .drop{
+      border:3px dashed var(--border);
+      border-radius:12px;
+      padding:40px;
+      text-align:center;
+      color:var(--muted);
+      cursor:pointer;
+      transition:all 0.2s ease;
+      background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    
+    .drop:hover, .drop.drag{
+      border-color:var(--accent);
+      background:linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(99,102,241,0.05) 100%);
+      color:var(--accent);
+      transform:scale(1.02);
+    }
+    
+    .error{
+      background:linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      border:2px solid #fecaca;
+      color:#dc2626;
+      padding:12px 16px;
+      border-radius:8px;
+      margin:12px 0;
+      font-weight:500;
+    }
+    
+    .success{
+      background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border:2px solid #bbf7d0;
+      color:#15803d;
+      padding:12px 16px;
+      border-radius:8px;
+      margin:12px 0;
+      font-weight:500;
+    }
+    
+    /* Modern scrollbar */
+    ::-webkit-scrollbar{width:8px;height:8px}
+    ::-webkit-scrollbar-track{background:var(--border);border-radius:4px}
+    ::-webkit-scrollbar-thumb{background:var(--muted);border-radius:4px}
+    ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      header { flex-direction: column; gap: 12px; }
+      .controls { width: 100%; justify-content: center; }
+      main { padding: 16px; }
+      .grid { gap: 16px; }
+      .card { padding: 16px; }
+    }
   </style>
 </head>
+
 <body>
   <header>
-    <h1>RUC Distance Dashboard</h1>
+    <h1>RUC Dashboard</h1>
     <div class="controls">
       <input id="csvFile" class="input" type="file" accept=".csv" />
-      <button class="btn" id="btnExport" disabled>Export filtered CSV</button>
-      <label class="pill"><input type="checkbox" id="toggleExcluded" checked /> Hide excluded</label>
-      <label class="pill"><input type="checkbox" id="onlyAtRisk" /> Only at risk (&lt; 2000km)</label>
-      <input id="search" class="input" type="search" placeholder="Search (device, plate, fleet #)" />
+      <button class="btn" id="btnRefresh" disabled>🔄 Refresh Odometers</button>
+      <button class="btn" id="btnExport" disabled>Export CSV</button>
+      <label class="pill"><input type="checkbox" id="onlyAtRisk" /> At risk only</label>
+      <input id="search" class="input" type="search" placeholder="Search..." />
     </div>
   </header>
 
   <main>
     <div class="grid">
+      <!-- File Upload Area -->
       <section class="card" style="grid-column: span 12;">
-        <div class="row" style="justify-content:space-between;align-items:center">
+        <div id="dropZone" class="drop">
+          📄 Drop CSV file here or click to browse
+        </div>
+        <div id="status"></div>
+      </section>
+
+      <!-- Geotab Configuration -->
+      <section class="card" style="grid-column: span 12;">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+          <strong>Geotab Configuration:</strong>
+          <input id="dbInput" class="input" placeholder="Database (e.g., uccnz)" style="min-width:150px">
+          <input id="userInput" class="input" placeholder="Username" style="min-width:200px">
+          <input id="passInput" class="input" placeholder="Password" type="password" style="min-width:150px">
+          <button class="btn secondary" id="btnSaveConfig">Save Config</button>
+          <span class="foot" id="configStatus">Not configured</span>
+        </div>
+      </section>
+      <section class="card" style="grid-column: span 12;">
+        <div style="display:flex;justify-content:space-between;align-items:center">
           <div class="legend">
-            <span class="danger"></span><small>&lt; 1000 km</small>
+            <span class="danger"></span><small>Overdue / &lt; 1000 km</small>
             <span class="warn" style="margin-left:12px"></span><small>1000–2000 km</small>
             <span class="ok" style="margin-left:12px"></span><small>&gt; 2000 km</small>
           </div>
-          <div class="foot" id="meta">No file loaded.</div>
+          <div class="foot" id="meta">No data loaded</div>
         </div>
       </section>
 
+      <!-- KPIs -->
       <section class="card" style="grid-column: span 3;">
         <div class="kpi"><div class="label">Vehicles</div><div class="value" id="kpiTotal">–</div></div>
       </section>
       <section class="card" style="grid-column: span 3;">
-        <div class="kpi"><div class="label">Avg Distance Remaining</div><div class="value" id="kpiAvg">–</div></div>
+        <div class="kpi"><div class="label">Avg Remaining</div><div class="value" id="kpiAvg">–</div></div>
       </section>
       <section class="card" style="grid-column: span 3;">
-        <div class="kpi"><div class="label">&lt; 2000 km</div><div class="value" id="kpi2000">–</div></div>
+        <div class="kpi"><div class="label">Overdue</div><div class="value" id="kpiOverdue">–</div></div>
       </section>
       <section class="card" style="grid-column: span 3;">
         <div class="kpi"><div class="label">&lt; 1000 km</div><div class="value" id="kpi1000">–</div></div>
       </section>
 
+      <!-- Chart -->
       <section class="card" style="grid-column: span 12;">
         <canvas id="chart"></canvas>
       </section>
 
+      <!-- Table -->
       <section class="card" style="grid-column: span 12;">
         <table>
           <thead>
             <tr>
-              <th data-key="device id" class="sortable">Device ID ▲▼</th>
-              <th data-key="Fleet #" class="sortable">Fleet # ▲▼</th>
-              <th data-key="REG Plate" class="sortable">REG Plate ▲▼</th>
-              <th data-key="expiry" class="sortable">Expiry (km) ▲▼</th>
-              <th data-key="odometer" class="sortable">Odometer (km) ▲▼</th>
-              <th data-key="distance remaining" class="sortable">Distance Remaining (km) ▲▼</th>
-              <th data-key="exclude" class="sortable">Excluded</th>
+              <th data-key="device id">Device ID ▲▼</th>
+              <th data-key="Fleet #">Fleet # ▲▼</th>
+              <th data-key="REG Plate">REG Plate ▲▼</th>
+              <th data-key="expiry">Expiry (km) ▲▼</th>
+              <th data-key="odometer">Odometer (km) ▲▼</th>
+              <th data-key="distance remaining">Distance Remaining ▲▼</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -107,219 +412,531 @@
   </main>
 
   <script>
-    // --- Utilities ---
-    function parseNumber(x){
-      if(x===null||x===undefined) return null;
-      const n = String(x).replace(/[,\s]/g, "");
-      if(n==="") return null;
-      const v = Number(n);
-      return Number.isFinite(v) ? v : null;
+    // Global state
+    let raw = [];
+    let rows = [];
+    let sortKey = 'distance remaining';
+    let sortDir = 'asc';
+    
+    // Geotab configuration - Pre-configured with provided credentials
+    let geotabConfig = {
+      database: 'uccnz',
+      username: 'francis@directt.co.nz',
+      password: '@fr4nc1sWynn5'
+    };
+    
+    // Save the pre-configured credentials to localStorage
+    localStorage.setItem('ruc_db', geotabConfig.database);
+    localStorage.setItem('ruc_user', geotabConfig.username);
+    localStorage.setItem('ruc_pass', geotabConfig.password);
+    
+    // Update config UI
+    function updateConfigUI() {
+      document.getElementById('dbInput').value = geotabConfig.database;
+      document.getElementById('userInput').value = geotabConfig.username;
+      document.getElementById('passInput').value = geotabConfig.password;
+      
+      const isConfigured = geotabConfig.database && geotabConfig.username && geotabConfig.password;
+      document.getElementById('configStatus').textContent = isConfigured ? 'Configuration saved ✓' : 'Not configured';
+      document.getElementById('btnRefresh').disabled = !isConfigured || rows.length === 0;
+    }
+    
+    // Save configuration
+    function saveConfiguration() {
+      geotabConfig.database = document.getElementById('dbInput').value.trim();
+      geotabConfig.username = document.getElementById('userInput').value.trim();
+      geotabConfig.password = document.getElementById('passInput').value;
+      
+      localStorage.setItem('ruc_db', geotabConfig.database);
+      localStorage.setItem('ruc_user', geotabConfig.username);
+      localStorage.setItem('ruc_pass', geotabConfig.password);
+      
+      updateConfigUI();
+    }
+    
+    // Add event listener for save config button
+    document.getElementById('btnSaveConfig').addEventListener('click', saveConfiguration);
+    
+    // Refresh odometer readings from Geotab
+    async function refreshOdometers() {
+      if (!geotabConfig.database || !geotabConfig.username || !geotabConfig.password) {
+        showStatus('Please configure Geotab credentials first', 'error');
+        return;
+      }
+      
+      const deviceIds = rows.map(r => r['device id']).filter(id => id && id.trim());
+      if (deviceIds.length === 0) {
+        showStatus('No device IDs found in data', 'error');
+        return;
+      }
+      
+      const refreshBtn = document.getElementById('btnRefresh');
+      const originalText = refreshBtn.textContent;
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = '🔄 Refreshing...';
+      
+      try {
+        // Try to use local proxy server for Geotab API
+        const response = await fetch('http://localhost:5009/odometer_bulk', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            database: geotabConfig.database,
+            username: geotabConfig.username,
+            password: geotabConfig.password,
+            deviceIds: deviceIds,
+            diagnosticId: 'DiagnosticOdometerAdjustmentId'
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.ok) {
+          throw new Error(result.error || 'Unknown API error');
+        }
+        
+        // Update odometer readings
+        const odometerData = result.data || {};
+        let updatedCount = 0;
+        
+        rows = rows.map(row => {
+          const deviceId = row['device id'];
+          if (deviceId && odometerData[deviceId] !== undefined) {
+            row['odometer'] = Math.round(odometerData[deviceId]); // Already in km
+            
+            // Recalculate distance remaining
+            if (row['expiry'] !== null && row['odometer'] !== null) {
+              row['distance remaining'] = Math.round(row['expiry'] - row['odometer']);
+            }
+            updatedCount++;
+          }
+          return row;
+        });
+        
+        if (updatedCount > 0) {
+          applyFilters();
+          showStatus(`✓ Updated ${updatedCount} vehicle odometers`, 'success');
+          document.getElementById('meta').textContent += ` • Last updated: ${new Date().toLocaleTimeString()}`;
+        } else {
+          showStatus('No odometer updates received', 'error');
+        }
+        
+      } catch (error) {
+        console.error('Refresh error:', error);
+        if (error.message.includes('fetch') || error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+          showStatus('❌ Proxy server not running! Start the Geotab proxy server on localhost:5009 first. Check console for setup instructions.', 'error');
+          console.log('🔧 SETUP REQUIRED:');
+          console.log('1. Install: pip install flask flask-cors requests');
+          console.log('2. Download proxy server from the artifact above');
+          console.log('3. Run: python geotab_proxy.py');
+          console.log('4. Server will start on localhost:5009');
+          console.log('5. Then try refresh again');
+        } else {
+          showStatus(`Refresh failed: ${error.message}`, 'error');
+        }
+      } finally {
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = originalText;
+        updateConfigUI(); // Re-enable button if configured
+      }
+    }
+    
+    // Add event listener for refresh button
+    document.getElementById('btnRefresh').addEventListener('click', refreshOdometers);
+    
+    // Show status messages
+    function showStatus(message, type = 'info') {
+      const statusDiv = document.getElementById('status');
+      const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+      statusDiv.innerHTML = `<div class="${className}">${message}</div>`;
+      
+      // Clear after 5 seconds for non-error messages
+      if (type !== 'error') {
+        setTimeout(() => {
+          statusDiv.innerHTML = '';
+        }, 5000);
+      }
     }
 
-    // CSV parser that respects quotes and commas-in-quotes
-    function parseCSV(text){
-      const rows=[]; let row=[]; let cur=''; let inQ=false; let i=0;
-      while(i<text.length){
-        const c=text[i];
-        if(inQ){
-          if(c==='"'){
-            if(text[i+1]==='"'){ cur+='"'; i++; }
-            else { inQ=false; }
-          } else { cur+=c; }
+    // Advanced CSV parser to handle quotes, commas in fields, etc.
+    function parseCSV(text) {
+      text = text.trim();
+      if (!text) throw new Error('Empty CSV file');
+      
+      const rows = [];
+      let row = [];
+      let current = '';
+      let inQuotes = false;
+      let i = 0;
+      
+      while (i < text.length) {
+        const char = text[i];
+        
+        if (inQuotes) {
+          if (char === '"') {
+            // Check for escaped quote
+            if (text[i + 1] === '"') {
+              current += '"';
+              i++; // Skip the next quote
+            } else {
+              inQuotes = false;
+            }
+          } else {
+            current += char;
+          }
         } else {
-          if(c==='"') inQ=true;
-          else if(c===','){ row.push(cur); cur=''; }
-          else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
-          else if(c==='\r'){ /* skip */ }
-          else { cur+=c; }
+          if (char === '"') {
+            inQuotes = true;
+          } else if (char === ',') {
+            row.push(current.trim());
+            current = '';
+          } else if (char === '\n' || char === '\r\n') {
+            row.push(current.trim());
+            if (row.length > 0 && row.some(cell => cell !== '')) {
+              rows.push(row);
+            }
+            row = [];
+            current = '';
+            // Skip \r if we have \r\n
+            if (char === '\r' && text[i + 1] === '\n') {
+              i++;
+            }
+          } else if (char !== '\r') {
+            current += char;
+          }
         }
         i++;
       }
-      if(cur!==''||row.length){ row.push(cur); rows.push(row); }
-      // header -> objects
-      const header = rows.shift()||[];
-      return rows.filter(r=>r.length>0 && r.some(v=>v!=='')).map(r=>{
-        const o={};
-        header.forEach((h,idx)=>{ o[h.trim()] = (r[idx]??'').trim(); });
-        return o;
-      });
+      
+      // Add the last field and row
+      if (current !== '' || row.length > 0) {
+        row.push(current.trim());
+        if (row.length > 0 && row.some(cell => cell !== '')) {
+          rows.push(row);
+        }
+      }
+      
+      if (rows.length < 2) {
+        throw new Error('CSV must have at least a header row and one data row');
+      }
+      
+      // Convert to objects
+      const headers = rows[0].map(h => h.replace(/"/g, '').trim());
+      console.log('CSV Headers found:', headers);
+      
+      const data = [];
+      for (let i = 1; i < rows.length; i++) {
+        const values = rows[i];
+        if (values.length > 0 && values.some(v => v !== '')) {
+          const rowObj = {};
+          headers.forEach((header, index) => {
+            rowObj[header] = (values[index] || '').replace(/"/g, '').trim();
+          });
+          data.push(rowObj);
+        }
+      }
+      
+      console.log(`Parsed ${data.length} data rows from CSV`);
+      return data;
     }
 
-    function downloadCSV(filename, rows){
-      if(!rows.length) return;
-      const headers = Object.keys(rows[0]);
-      const esc = v => '"'+String(v).replaceAll('"','""')+'"';
-      const lines = [headers.map(esc).join(',')].concat(rows.map(r=> headers.map(h=> esc(r[h]??'')).join(',')));
-      const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download=filename; a.click();
-      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    // Number parser
+    function parseNumber(x) {
+      if (x === null || x === undefined || x === '') return null;
+      const cleaned = String(x).replace(/[,\s]/g, '');
+      const num = Number(cleaned);
+      return isFinite(num) ? num : null;
     }
 
-    // --- State ---
-    let raw = [];      // raw rows from CSV
-    let rows = [];     // normalized rows for display
-    let sortKey = 'distance remaining';
-    let sortDir = 'asc';
-
-    // --- Rendering ---
-    function normalize(data){
-      return data.map(r=>{
+    // Data normalization
+    function normalize(data) {
+      return data.map(r => {
         const expiry = parseNumber(r['expiry']);
         let odo = parseNumber(r['odometer']);
-        // If odometer appears to be in metres (very large), convert to km
-        if(odo !== null && odo > 1000000) odo = Math.round(odo/1000);
+        
+        // Convert metres to km if needed
+        if (odo !== null && odo > 1000000) odo = Math.round(odo / 1000);
+        
+        // Calculate remaining distance
         let remaining = parseNumber(r['distance remaining']);
-        if(remaining===null && expiry!==null && odo!==null){ remaining = Math.max(0, Math.round(expiry - odo)); }
+        if (remaining === null && expiry !== null && odo !== null) {
+          remaining = Math.round(expiry - odo);
+        }
+        
         return {
-          'device id': r['device id']||'',
-          'Fleet #': r['Fleet #']||'',
-          'REG Plate': r['REG Plate']||'',
+          'device id': r['device id'] || '',
+          'Fleet #': r['Fleet #'] || '',
+          'REG Plate': r['REG Plate'] || '',
           'expiry': expiry,
           'odometer': odo,
           'distance remaining': remaining,
-          'exclude': r['exclude']||'',
         };
       });
     }
 
-    function applyFilters(){
-      const hideExcluded = document.getElementById('toggleExcluded').checked;
+    // Apply filters and sorting
+    function applyFilters() {
       const onlyAtRisk = document.getElementById('onlyAtRisk').checked;
-      const q = document.getElementById('search').value.trim().toLowerCase();
+      const searchTerm = document.getElementById('search').value.toLowerCase();
+      
       let filtered = rows.slice();
-      if(hideExcluded){ filtered = filtered.filter(r=> !r['exclude']); }
-      if(onlyAtRisk){ filtered = filtered.filter(r=> (r['distance remaining']??Infinity) < 2000); }
-      if(q){
-        filtered = filtered.filter(r=>
-          String(r['device id']).toLowerCase().includes(q) ||
-          String(r['REG Plate']).toLowerCase().includes(q) ||
-          String(r['Fleet #']).toLowerCase().includes(q)
+      
+      if (onlyAtRisk) {
+        filtered = filtered.filter(r => {
+          const dist = r['distance remaining'];
+          return dist !== null && (dist < 0 || dist < 2000);
+        });
+      }
+      
+      if (searchTerm) {
+        filtered = filtered.filter(r =>
+          String(r['device id']).toLowerCase().includes(searchTerm) ||
+          String(r['REG Plate']).toLowerCase().includes(searchTerm) ||
+          String(r['Fleet #']).toLowerCase().includes(searchTerm)
         );
       }
-      filtered.sort((a,b)=>{
-        const av = a[sortKey]; const bv = b[sortKey];
-        if(av==null && bv!=null) return 1;
-        if(av!=null && bv==null) return -1;
-        if(av==null && bv==null) return 0;
-        if(typeof av === 'number' && typeof bv === 'number') return sortDir==='asc'? av-bv : bv-av;
-        return sortDir==='asc'? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
+      
+      // Sort
+      filtered.sort((a, b) => {
+        const av = a[sortKey];
+        const bv = b[sortKey];
+        
+        if (av === null && bv !== null) return 1;
+        if (av !== null && bv === null) return -1;
+        if (av === null && bv === null) return 0;
+        
+        if (typeof av === 'number' && typeof bv === 'number') {
+          return sortDir === 'asc' ? av - bv : bv - av;
+        }
+        
+        return sortDir === 'asc' ? 
+          String(av).localeCompare(String(bv)) : 
+          String(bv).localeCompare(String(av));
       });
+      
       renderTable(filtered);
       renderKpis(filtered);
       renderChart(filtered);
-      document.getElementById('btnExport').disabled = filtered.length===0;
-      document.getElementById('btnExport').onclick = ()=> downloadCSV('ruc_dashboard_filtered.csv', filtered.map(r=>({
-        'device id': r['device id'],
-        'Fleet #': r['Fleet #'],
-        'REG Plate': r['REG Plate'],
-        'expiry': r['expiry'],
-        'odometer': r['odometer'],
-        'distance remaining': r['distance remaining'],
-        'exclude': r['exclude'],
-      })));
+      
+      document.getElementById('btnExport').disabled = filtered.length === 0;
     }
 
-    function renderKpis(data){
+    // Render KPIs
+    function renderKpis(data) {
       const total = data.length;
-      const rem = data.map(r=>r['distance remaining']).filter(v=>v!=null);
-      const avg = rem.length? Math.round(rem.reduce((a,b)=>a+b,0)/rem.length) : null;
-      const lt2000 = data.filter(r=> (r['distance remaining']??Infinity) < 2000).length;
-      const lt1000 = data.filter(r=> (r['distance remaining']??Infinity) < 1000).length;
+      const withRemaining = data.filter(r => r['distance remaining'] !== null);
+      const avg = withRemaining.length ? 
+        Math.round(withRemaining.reduce((sum, r) => sum + r['distance remaining'], 0) / withRemaining.length) : 
+        null;
+      const overdue = data.filter(r => r['distance remaining'] !== null && r['distance remaining'] < 0).length;
+      const lt1000 = data.filter(r => r['distance remaining'] !== null && r['distance remaining'] >= 0 && r['distance remaining'] < 1000).length;
+      
       document.getElementById('kpiTotal').textContent = total;
-      document.getElementById('kpiAvg').textContent = avg==null? '–' : avg.toLocaleString();
-      document.getElementById('kpi2000').textContent = lt2000;
+      document.getElementById('kpiAvg').textContent = avg !== null ? avg.toLocaleString() + ' km' : '–';
+      document.getElementById('kpiOverdue').textContent = overdue;
       document.getElementById('kpi1000').textContent = lt1000;
     }
 
-    function renderTable(data){
-      const tb = document.getElementById('tbody');
-      tb.innerHTML = '';
-      for(const r of data){
-        const tr = document.createElement('tr');
-        const status = r['distance remaining']==null ? 'warn' : r['distance remaining']<1000 ? 'danger' : r['distance remaining']<2000 ? 'warn' : 'ok';
-        tr.innerHTML = `
-          <td>${r['device id']||''}</td>
-          <td>${r['Fleet #']||''}</td>
-          <td>${r['REG Plate']||''}</td>
-          <td>${r['expiry']!=null? r['expiry'].toLocaleString():''}</td>
-          <td>${r['odometer']!=null? r['odometer'].toLocaleString():''}</td>
-          <td><span class="tag ${status}">${r['distance remaining']!=null? r['distance remaining'].toLocaleString(): 'n/a'}</span></td>
-          <td>${r['exclude']? 'Yes':''}</td>
-        `;
-        tb.appendChild(tr);
-      }
-    }
-
-    function renderChart(data){
-      const ctx = document.getElementById('chart').getContext('2d');
-      const buckets = [0,500,1000,1500,2000,3000,5000,10000,Infinity];
-      const labels = ['<500','500–999','1k–1.5k','1.5k–2k','2k–3k','3k–5k','5k–10k','>10k'];
-      const counts = new Array(labels.length).fill(0);
-      for(const r of data){
-        const v = r['distance remaining'];
-        if(v==null) continue;
-        let idx = 0;
-        for(let i=0;i<buckets.length-1;i++){
-          if(v>=buckets[i] && v<buckets[i+1]){ idx = i; break; }
+    // Render table
+    function renderTable(data) {
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      
+      data.forEach(r => {
+        const row = document.createElement('tr');
+        const remaining = r['distance remaining'];
+        
+        let status, displayText;
+        if (remaining === null) {
+          status = 'warn';
+          displayText = 'n/a';
+        } else if (remaining < 0) {
+          status = 'danger';
+          displayText = `${Math.abs(remaining).toLocaleString()} km overdue`;
+        } else if (remaining < 1000) {
+          status = 'danger';
+          displayText = `${remaining.toLocaleString()} km`;
+        } else if (remaining < 2000) {
+          status = 'warn';
+          displayText = `${remaining.toLocaleString()} km`;
+        } else {
+          status = 'ok';
+          displayText = `${remaining.toLocaleString()} km`;
         }
-        counts[idx]++;
-      }
-      // Simple bar chart without external libs
-      const W = ctx.canvas.width, H = ctx.canvas.height;
-      ctx.clearRect(0,0,W,H);
-      const max = Math.max(1, ...counts);
-      const barW = Math.floor((W - 40) / counts.length) - 8; // padding
-      ctx.font = '12px system-ui';
-      ctx.fillStyle = '#a7b1c2';
-      ctx.textAlign = 'center';
-      // axes
-      ctx.strokeStyle = '#23324f';
-      ctx.beginPath(); ctx.moveTo(30,10); ctx.lineTo(30,H-30); ctx.lineTo(W-10,H-30); ctx.stroke();
-      for(let i=0;i<counts.length;i++){
-        const x = 40 + i*(barW+8);
-        const h = Math.round(((H-60) * counts[i]) / max);
-        const y = (H-30) - h;
-        // color by risk-ish
-        let fill = '#27d17f';
-        if(i<=2) fill = '#ff5a67';
-        else if(i<=3) fill = '#ffb020';
-        ctx.fillStyle = fill;
-        ctx.fillRect(x, y, barW, h);
-        ctx.fillStyle = '#a7b1c2';
-        ctx.fillText(labels[i], x+barW/2, H-12);
-        ctx.fillText(String(counts[i]), x+barW/2, y-4);
-      }
+        
+        row.innerHTML = `
+          <td>${r['device id'] || ''}</td>
+          <td>${r['Fleet #'] || ''}</td>
+          <td>${r['REG Plate'] || ''}</td>
+          <td>${r['expiry'] !== null ? r['expiry'].toLocaleString() : ''}</td>
+          <td>${r['odometer'] !== null ? r['odometer'].toLocaleString() : ''}</td>
+          <td><span class="tag ${status}">${displayText}</span></td>
+        `;
+        
+        tbody.appendChild(row);
+      });
     }
 
-    // --- Events ---
-    document.getElementById('csvFile').addEventListener('change', e=>{
-      const file = e.target.files?.[0];
-      if(!file) return;
+    // Render chart
+    function renderChart(data) {
+      const ctx = document.getElementById('chart').getContext('2d');
+      const buckets = [-Infinity, 0, 500, 1000, 1500, 2000, 3000, 5000, 10000, Infinity];
+      const labels = ['OVERDUE', '0-499', '500-999', '1k-1.5k', '1.5k-2k', '2k-3k', '3k-5k', '5k-10k', '>10k'];
+      const counts = new Array(labels.length).fill(0);
+      
+      data.forEach(r => {
+        const v = r['distance remaining'];
+        if (v === null) return;
+        
+        for (let i = 0; i < buckets.length - 1; i++) {
+          if (v >= buckets[i] && v < buckets[i + 1]) {
+            counts[i]++;
+            break;
+          }
+        }
+      });
+      
+      const W = ctx.canvas.width;
+      const H = ctx.canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      
+      const max = Math.max(1, ...counts);
+      const barW = Math.floor((W - 80) / counts.length) - 10;
+      
+      ctx.font = '12px system-ui';
+      ctx.textAlign = 'center';
+      
+      // Draw bars
+      counts.forEach((count, i) => {
+        const x = 50 + i * (barW + 10);
+        const h = Math.round(((H - 80) * count) / max);
+        const y = H - 50 - h;
+        
+        // Color based on risk
+        let color = '#10b981'; // ok
+        if (i === 0) color = '#ef4444'; // overdue
+        else if (i <= 3) color = '#ef4444'; // danger
+        else if (i <= 4) color = '#f59e0b'; // warning
+        
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, barW, h);
+        
+        // Labels
+        ctx.fillStyle = '#64748b';
+        ctx.fillText(labels[i], x + barW / 2, H - 30);
+        ctx.fillText(String(count), x + barW / 2, y - 5);
+      });
+    }
+
+    // File handling
+    function handleFile(file) {
       const reader = new FileReader();
-      reader.onload = ev => {
-        raw = parseCSV(String(ev.target.result||''));
-        rows = normalize(raw);
-        document.getElementById('meta').textContent = `${file.name} • ${rows.length} rows`;
-        applyFilters();
+      reader.onload = function(e) {
+        try {
+          const text = e.target.result;
+          console.log('File content preview:', text.substring(0, 200));
+          
+          raw = parseCSV(text);
+          rows = normalize(raw);
+          
+          document.getElementById('meta').textContent = `${file.name} • ${rows.length} rows`;
+          showStatus(`✓ Loaded ${rows.length} vehicles from ${file.name}`, 'success');
+          
+          // Enable refresh button if configured
+          updateConfigUI();
+          
+          applyFilters();
+        } catch (error) {
+          console.error('CSV parsing error:', error);
+          showStatus(`Error parsing CSV: ${error.message}`, 'error');
+        }
       };
       reader.readAsText(file);
+    }
+
+    // Event listeners
+    document.getElementById('csvFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) handleFile(file);
     });
 
-    document.getElementById('toggleExcluded').addEventListener('change', applyFilters);
-    document.getElementById('onlyAtRisk').addEventListener('change', applyFilters);
-    document.getElementById('search').addEventListener('input', ()=>{
-      // simple debounce
-      clearTimeout(window.__deb); window.__deb = setTimeout(applyFilters, 180);
+    // Drag and drop
+    const dropZone = document.getElementById('dropZone');
+    
+    dropZone.addEventListener('click', () => {
+      document.getElementById('csvFile').click();
+    });
+    
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag');
+    });
+    
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag');
+      
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'text/csv') {
+        handleFile(file);
+      }
     });
 
-    document.querySelectorAll('th.sortable').forEach(th=>{
-      th.addEventListener('click', ()=>{
+    // Table sorting
+    document.querySelectorAll('th[data-key]').forEach(th => {
+      th.addEventListener('click', () => {
         const key = th.getAttribute('data-key');
-        if(sortKey===key){ sortDir = (sortDir==='asc'?'desc':'asc'); }
-        else { sortKey = key; sortDir = 'asc'; }
+        if (sortKey === key) {
+          sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortKey = key;
+          sortDir = 'asc';
+        }
         applyFilters();
       });
+    });
+
+    // Filter events
+    document.getElementById('onlyAtRisk').addEventListener('change', applyFilters);
+    document.getElementById('search').addEventListener('input', applyFilters);
+
+    // Export functionality
+    document.getElementById('btnExport').addEventListener('click', () => {
+      const filtered = rows; // You might want to use the currently filtered data
+      const csv = [
+        ['Device ID', 'Fleet #', 'REG Plate', 'Expiry (km)', 'Odometer (km)', 'Distance Remaining (km)'],
+        ...filtered.map(r => [
+          r['device id'],
+          r['Fleet #'],
+          r['REG Plate'],
+          r['expiry'],
+          r['odometer'],
+          r['distance remaining']
+        ])
+      ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ruc_export.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+    
+    // Initialize the config UI with pre-configured credentials
+    document.addEventListener('DOMContentLoaded', () => {
+      updateConfigUI();
     });
   </script>
 </body>
