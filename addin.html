@@ -27,7 +27,7 @@
       margin:0;
       background:linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
       color:var(--text);
-      font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Ubuntu,sans-serif;
+      font:14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Ubuntu,sans-serif;
       min-height:100vh;
     }
     
@@ -58,18 +58,16 @@
     .controls{
       display:flex;
       flex-wrap:wrap;
-      gap:10px 12px;
+      gap:12px;
       align-items:center;
-      justify-content:flex-start;
-      max-width:1200px;
     }
     
     .btn{
       background:linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
       border:none;
       color:#fff;
-      padding:8px 14px;
-      border-radius:10px;
+      padding:10px 16px;
+      border-radius:8px;
       font-weight:600;
       cursor:pointer;
       transition:all 0.2s ease;
@@ -96,11 +94,10 @@
       background:var(--card);
       border:2px solid var(--border);
       color:var(--text);
-      padding:8px 12px;
-      border-radius:10px;
+      padding:10px 14px;
+      border-radius:8px;
       transition:all 0.2s ease;
       font-size:13px;
-      height:36px;
     }
     
     .input:focus{
@@ -109,12 +106,16 @@
       box-shadow:0 0 0 3px rgba(59,130,246,0.1);
     }
     
-    main{padding:32px 24px;max-width:1200px;margin:0 auto;}
+    main{
+      padding:24px;
+      max-width:1400px;
+      margin:0 auto;
+    }
     
     .grid{
       display:grid;
       grid-template-columns:repeat(12,1fr);
-      gap:24px;
+      gap:20px;
     }
     
     .card{
@@ -147,7 +148,7 @@
     }
     
     .kpi .value{
-      font-size:32px;
+      font-size:28px;
       font-weight:800;
       background:linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
       -webkit-background-clip:text;
@@ -199,14 +200,11 @@
     }
     
     thead th{
-      position:sticky;
-      top:0;
-      z-index:1;
       background:linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
       color:var(--text);
       font-weight:700;
       text-align:left;
-      padding:14px 16px;
+      padding:16px;
       font-size:12px;
       text-transform:uppercase;
       letter-spacing:0.5px;
@@ -220,20 +218,19 @@
     }
     
     tbody td{
-      padding:12px 16px;
+      padding:16px;
       background:var(--card);
       border-bottom:1px solid var(--border);
       font-size:14px;
-      vertical-align:middle;
     }
     
     tbody tr{
-      transition:background 0.15s ease, transform 0.15s ease;
+      transition:all 0.2s ease;
     }
     
     tbody tr:hover{
-      background:#f8fafc;
-      transform:translateY(-1px);
+      background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      transform:scale(1.01);
     }
     
     .tag{
@@ -264,7 +261,7 @@
     
     canvas{
       width:100%;
-      height: 500px;
+      height:280px;
       background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       border-radius:12px;
       border:2px solid var(--border);
@@ -329,26 +326,6 @@
       .grid { gap: 16px; }
       .card { padding: 16px; }
     }
-  
-/* New: wrap table for scroll if needed */
-.table-wrap{overflow:auto;border-radius:12px;}
-
-/* Right-align numeric columns */
-tbody td.num, thead th.num { text-align:right; }
-
-/* Compact inputs inside table cells */
-td input[type="number"]{
-  width:110px;
-  padding:6px 8px;
-  border:2px solid var(--border);
-  border-radius:8px;
-  height:36px;
-}
-
-/* Make legend and meta breathe */
-.legend{ gap:16px; }
-#meta{ font-weight:600; }
-
   </style>
 </head>
 
@@ -410,11 +387,13 @@ td input[type="number"]{
         <div class="kpi"><div class="label">&lt; 1000 km</div><div class="value" id="kpi1000">–</div></div>
       </section>
 
-      <!-- Chart REMOVED -->
+      <!-- Chart -->
+      <section class="card" style="grid-column: span 12;">
+        <canvas id="chart"></canvas>
+      </section>
 
       <!-- Table -->
       <section class="card" style="grid-column: span 12;">
-        <div class="table-wrap">
         <table>
           <thead>
             <tr>
@@ -428,7 +407,6 @@ td input[type="number"]{
           </thead>
           <tbody id="tbody"></tbody>
         </table>
-        </div>
       </section>
     </div>
   </main>
@@ -674,43 +652,6 @@ td input[type="number"]{
       const cleaned = String(x).replace(/[,\s]/g, '');
       const num = Number(cleaned);
       return isFinite(num) ? num : null;
-
-// === Inline-edit helpers ===
-function updateExpiry(deviceId, newValue) {
-  const expiryVal = parseNumber(newValue);
-  rows = rows.map(row => {
-    if (row['device id'] === deviceId) {
-      row['expiry'] = expiryVal;
-      if (row['odometer'] !== null && expiryVal !== null) {
-        row['distance remaining'] = Math.round(expiryVal - row['odometer']);
-      } else {
-        row['distance remaining'] = null;
-      }
-    }
-    return row;
-  });
-  applyFilters();
-}
-
-function updateOdometer(deviceId, newValue) {
-  let odoVal = parseNumber(newValue);
-  // Reject negatives
-  if (odoVal !== null && odoVal < 0) odoVal = 0;
-  rows = rows.map(row => {
-    if (row['device id'] === deviceId) {
-      row['odometer'] = odoVal;
-      if (row['expiry'] !== null && odoVal !== null) {
-        row['distance remaining'] = Math.round(row['expiry'] - odoVal);
-      } else {
-        row['distance remaining'] = null;
-      }
-    }
-    return row;
-  });
-  applyFilters();
-}
-
-
     }
 
     // Data normalization
@@ -781,8 +722,7 @@ function updateOdometer(deviceId, newValue) {
       
       renderTable(filtered);
       renderKpis(filtered);
-      // Chart rendering removed
-      // renderChart(filtered);
+      renderChart(filtered);
       
       document.getElementById('btnExport').disabled = filtered.length === 0;
     }
@@ -805,90 +745,94 @@ function updateOdometer(deviceId, newValue) {
 
     // Render table
     function renderTable(data) {
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = '';
-
-  data.forEach(r => {
-    const tr = document.createElement('tr');
-    const remaining = r['distance remaining'];
-
-    let status, displayText;
-    if (remaining === null) {
-      status = 'warn';
-      displayText = 'n/a';
-    } else if (remaining < 0) {
-      status = 'danger';
-      displayText = `${Math.abs(remaining).toLocaleString()} km overdue`;
-    } else if (remaining < 1000) {
-      status = 'danger';
-      displayText = `${remaining.toLocaleString()} km`;
-    } else if (remaining < 2000) {
-      status = 'warn';
-      displayText = `${remaining.toLocaleString()} km`;
-    } else {
-      status = 'ok';
-      displayText = `${remaining.toLocaleString()} km`;
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      
+      data.forEach(r => {
+        const row = document.createElement('tr');
+        const remaining = r['distance remaining'];
+        
+        let status, displayText;
+        if (remaining === null) {
+          status = 'warn';
+          displayText = 'n/a';
+        } else if (remaining < 0) {
+          status = 'danger';
+          displayText = `${Math.abs(remaining).toLocaleString()} km overdue`;
+        } else if (remaining < 1000) {
+          status = 'danger';
+          displayText = `${remaining.toLocaleString()} km`;
+        } else if (remaining < 2000) {
+          status = 'warn';
+          displayText = `${remaining.toLocaleString()} km`;
+        } else {
+          status = 'ok';
+          displayText = `${remaining.toLocaleString()} km`;
+        }
+        
+        row.innerHTML = `
+          <td>${r['device id'] || ''}</td>
+          <td>${r['Fleet #'] || ''}</td>
+          <td>${r['REG Plate'] || ''}</td>
+          <td>${r['expiry'] !== null ? r['expiry'].toLocaleString() : ''}</td>
+          <td>${r['odometer'] !== null ? r['odometer'].toLocaleString() : ''}</td>
+          <td><span class="tag ${status}">${displayText}</span></td>
+        `;
+        
+        tbody.appendChild(row);
+      });
     }
 
-    // Device ID
-    const tdDevice = document.createElement('td');
-    tdDevice.textContent = r['device id'] || '';
-
-    // Fleet #
-    const tdFleet = document.createElement('td');
-    tdFleet.textContent = r['Fleet #'] || '';
-
-    // REG Plate
-    const tdReg = document.createElement('td');
-    tdReg.textContent = r['REG Plate'] || '';
-
-    // Editable Expiry (km)
-    const tdExpiry = document.createElement('td'); tdExpiry.className='num';
-    const expiryInput = document.createElement('input');
-    expiryInput.type = 'number';
-    expiryInput.value = r['expiry'] !== null ? r['expiry'] : '';
-    expiryInput.style.width = '110px';
-    expiryInput.style.padding = '6px 8px';
-    expiryInput.style.border = '2px solid var(--border)';
-    expiryInput.style.borderRadius = '8px';
-    expiryInput.addEventListener('input', (e) => {
-      updateExpiry(r['device id'], e.target.value);
-    });
-    tdExpiry.appendChild(expiryInput);
-
-    // Editable Odometer (km)
-    const tdOdo = document.createElement('td'); tdOdo.className='num';
-    const odoInput = document.createElement('input');
-    odoInput.type = 'number';
-    odoInput.value = r['odometer'] !== null ? r['odometer'] : '';
-    odoInput.style.width = '110px';
-    odoInput.style.padding = '6px 8px';
-    odoInput.style.border = '2px solid var(--border)';
-    odoInput.style.borderRadius = '8px';
-    odoInput.addEventListener('input', (e) => {
-      updateOdometer(r['device id'], e.target.value);
-    });
-    tdOdo.appendChild(odoInput);
-
-    // Distance remaining tag
-    const tdRemaining = document.createElement('td'); tdRemaining.className='num';
-    const span = document.createElement('span');
-    span.className = `tag ${status}`;
-    span.textContent = displayText;
-    tdRemaining.appendChild(span);
-
-    tr.appendChild(tdDevice);
-    tr.appendChild(tdFleet);
-    tr.appendChild(tdReg);
-    tr.appendChild(tdExpiry);
-    tr.appendChild(tdOdo);
-    tr.appendChild(tdRemaining);
-
-    tbody.appendChild(tr);
-  });
-}
-
-    // Chart rendering removed
+    // Render chart
+    function renderChart(data) {
+      const ctx = document.getElementById('chart').getContext('2d');
+      const buckets = [-Infinity, 0, 500, 1000, 1500, 2000, 3000, 5000, 10000, Infinity];
+      const labels = ['OVERDUE', '0-499', '500-999', '1k-1.5k', '1.5k-2k', '2k-3k', '3k-5k', '5k-10k', '>10k'];
+      const counts = new Array(labels.length).fill(0);
+      
+      data.forEach(r => {
+        const v = r['distance remaining'];
+        if (v === null) return;
+        
+        for (let i = 0; i < buckets.length - 1; i++) {
+          if (v >= buckets[i] && v < buckets[i + 1]) {
+            counts[i]++;
+            break;
+          }
+        }
+      });
+      
+      const W = ctx.canvas.width;
+      const H = ctx.canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      
+      const max = Math.max(1, ...counts);
+      const barW = Math.floor((W - 80) / counts.length) - 10;
+      
+      ctx.font = '12px system-ui';
+      ctx.textAlign = 'center';
+      
+      // Draw bars
+      counts.forEach((count, i) => {
+        const x = 50 + i * (barW + 10);
+        const h = Math.round(((H - 80) * count) / max);
+        const y = H - 50 - h;
+        
+        // Color based on risk
+        let color = '#10b981'; // ok
+        if (i === 0) color = '#ef4444'; // overdue
+        else if (i <= 3) color = '#ef4444'; // danger
+        else if (i <= 4) color = '#f59e0b'; // warning
+        
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, barW, h);
+        
+        // Labels
+        ctx.fillStyle = '#64748b';
+        ctx.fillText(labels[i], x + barW / 2, H - 30);
+        ctx.fillText(String(count), x + barW / 2, y - 5);
+      });
+    }
 
     // File handling
     function handleFile(file) {
@@ -995,5 +939,102 @@ function updateOdometer(deviceId, newValue) {
       updateConfigUI();
     });
   </script>
+    </script>
+<script>
+// ---- UI Polish Script START ----
+document.addEventListener('DOMContentLoaded', function() {
+  // Fade-in main content
+  var main = document.querySelector('main');
+  if(main) {
+    main.style.opacity = '0';
+    main.style.transition = 'opacity 0.7s';
+    setTimeout(function(){ main.style.opacity = '1'; }, 100);
+  }
+  // Cards hover effect
+  document.querySelectorAll('.card').forEach(card => {
+    card.style.transition = 'box-shadow 0.3s, transform 0.3s';
+    card.addEventListener('mouseenter', () => {
+      card.style.boxShadow = '0 12px 32px rgba(59,130,246,0.11)';
+      card.style.transform = 'translateY(-2px) scale(1.01)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.07)';
+      card.style.transform = '';
+    });
+  });
+  // Buttons hover effect
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.style.transition = 'box-shadow 0.2s, transform 0.18s, background 0.2s';
+    btn.addEventListener('mouseenter', () => {
+      btn.style.boxShadow = '0 6px 18px rgba(59,130,246,0.18)';
+      btn.style.transform = 'scale(1.05)';
+      btn.style.background = 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+      btn.style.transform = '';
+      btn.style.background = '';
+    });
+  });
+  // Inputs focus effect
+  document.querySelectorAll('.input').forEach(input => {
+    input.style.transition = 'box-shadow 0.22s, border-color 0.22s';
+    input.addEventListener('focus', () => {
+      input.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.09)';
+      input.style.borderColor = '#3b82f6';
+    });
+    input.addEventListener('blur', () => {
+      input.style.boxShadow = '';
+      input.style.borderColor = '';
+    });
+  });
+  // Table polish
+  document.querySelectorAll('table').forEach(table => {
+    table.style.boxShadow = '0 2px 18px rgba(59,130,246,0.07)';
+    table.style.borderRadius = '16px';
+    table.style.background = 'rgba(255,255,255,0.96)';
+  });
+  document.querySelectorAll('thead th').forEach(th => {
+    th.style.background = 'linear-gradient(120deg, #e0e7ef 0%, #f8fafc 100%)';
+    th.style.fontWeight = '700';
+    th.style.fontSize = '15px';
+    th.style.letterSpacing = '1px';
+    th.style.textAlign = 'center';
+  });
+  document.querySelectorAll('tbody td').forEach(td => {
+    td.style.fontSize = '15px';
+    td.style.textAlign = 'center';
+    td.style.padding = '14px 10px';
+  });
+  // Legend polish
+  document.querySelectorAll('.legend').forEach(legend => {
+    legend.style.background = 'rgba(240,242,255,0.8)';
+    legend.style.borderRadius = '12px';
+    legend.style.padding = '10px 16px';
+    legend.style.marginBottom = '8px';
+    legend.style.boxShadow = '0 1px 6px rgba(59,130,246,0.06)';
+    legend.style.fontWeight = '600';
+  });
+  // Dropzone polish
+  var dropZone = document.getElementById('dropZone');
+  if(dropZone) {
+    dropZone.style.fontSize = '1.15em';
+    dropZone.style.padding = '40px 0';
+    dropZone.style.background = 'linear-gradient(135deg, #e0e7ef 0%, #f8fafc 100%)';
+    dropZone.style.transition = 'box-shadow 0.25s, border-color 0.2s';
+    dropZone.addEventListener('mouseenter', () => {
+      dropZone.style.boxShadow = '0 8px 24px rgba(59,130,246,0.10)';
+      dropZone.style.borderColor = '#3b82f6';
+    });
+    dropZone.addEventListener('mouseleave', () => {
+      dropZone.style.boxShadow = '';
+      dropZone.style.borderColor = '';
+    });
+  }
+});
+// ---- UI Polish Script END ----
+</script>
+</body>
+</html>
 </body>
 </html>
